@@ -1,0 +1,27 @@
+{
+  "name": "menged-rest-api",
+  "version": "1.0.0",
+  "description": "REST API for Menged - Opportunity discovery platform for Ethiopian university students and graduates",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "menged",
+    "rest-api",
+    "express",
+    "postgresql",
+    "opportunities",
+    "ethiopia",
+    "codveda"
+  ],
+  "author": "Haleta (Codveda Internship)",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
