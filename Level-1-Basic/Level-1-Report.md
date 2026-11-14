@@ -63,3 +63,37 @@
 - Comprehensive API and Database documentation (`documentation/`).
 - Postman / Thunder Client automated test collection (`tests/`).
 - Task 2 README and submission evidence guide.
+
+---
+
+### Task 3: Build a Dynamic Frontend with Vanilla JavaScript
+
+**Status:** Completed
+
+**Project:** Menged (Opportunity Discovery Platform for Ethiopian University Students and Graduates)
+
+**Technologies:**
+- HTML5
+- CSS3 (Custom properties, Flexbox, CSS Grid)
+- Vanilla JavaScript (ES6+, async/await)
+- Fetch API
+- Google Fonts (Plus Jakarta Sans, Noto Sans Ethiopic)
+
+**Completed Objectives:**
+
+1. Developed a responsive, modern HTML5 user interface with branded navigation and hero section.
+2. Connected frontend dynamically to Express REST API endpoints (`/api/opportunities`) using the native Fetch API.
+3. Rendered opportunity cards dynamically from real PostgreSQL records with category badges, deadline chips, and external application links.
+4. Implemented real-time debounced search (300ms) and multi-factor category and discipline filtering.
+5. Built an accessible opportunity details modal displaying full descriptions, eligibility, and direct apply triggers.
+6. Engineered an interactive CRUD management dashboard enabling Create (POST), Edit (PUT), and Delete (DELETE) operations with confirmation dialogs.
+7. Implemented loading skeletons, defensive network error banners, and empty search states.
+8. Prepared technical documentation, submission screenshot guide, and comprehensive README.
+
+**Deliverables:**
+- Frontend single-page application (`index.html`).
+- Responsive stylesheets (`css/style.css`).
+- Vanilla JavaScript application logic (`js/app.js`).
+- Complete frontend technical documentation (`documentation/FRONTEND_DOCUMENTATION.md`).
+- Evaluation screenshot capture guide (`screenshots/README.md`).
+- Task 3 README documentation.
