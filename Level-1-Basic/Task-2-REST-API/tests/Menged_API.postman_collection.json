@@ -1,0 +1,269 @@
+{
+  "info": {
+    "_postman_id": "c1f7a23b-82e4-4d8b-90a1-menged-api-test",
+    "name": "Menged REST API - Codveda Level 1 Task 2",
+    "description": "Comprehensive Postman/Thunder Client collection for testing the Menged Opportunity Discovery REST API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Verifies that the Express server is up and responsive."
+      }
+    },
+    {
+      "name": "02 - Get All Opportunities",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        },
+        "description": "Fetches all opportunities ordered by created_at DESC."
+      }
+    },
+    {
+      "name": "03 - Filter Opportunities by Type",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities?type=Internships",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"],
+          "query": [
+            {
+              "key": "type",
+              "value": "Internships"
+            }
+          ]
+        },
+        "description": "Filters opportunities by specific category (e.g., Internships)."
+      }
+    },
+    {
+      "name": "04 - Search Opportunities by Keyword",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities?search=Software",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"],
+          "query": [
+            {
+              "key": "search",
+              "value": "Software"
+            }
+          ]
+        },
+        "description": "Searches for opportunities containing 'Software' in title, organization, or description."
+      }
+    },
+    {
+      "name": "05 - Get Opportunity by ID (Valid)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "1"]
+        },
+        "description": "Retrieves an existing opportunity by numeric ID (e.g., 1)."
+      }
+    },
+    {
+      "name": "06 - Get Opportunity by ID (Invalid ID Format - 400)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/abc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "abc"]
+        },
+        "description": "Tests validation for non-numeric ID. Expected: 400 Bad Request."
+      }
+    },
+    {
+      "name": "07 - Get Opportunity by ID (Nonexistent - 404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "99999"]
+        },
+        "description": "Tests handling for non-existent record. Expected: 404 Not Found."
+      }
+    },
+    {
+      "name": "08 - Create Opportunity (Valid - 201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Demonstration: Junior Backend Developer Trainee\",\n  \"organization\": \"FinTech Addis Innovations (Demonstration Entity)\",\n  \"type\": \"Training programs\",\n  \"field\": \"FinTech & Backend\",\n  \"description\": \"Simulated 6-month specialized backend development training on Node.js, databases, and microservices for recent graduates.\",\n  \"eligibility\": \"Fresh university graduates in Computer Science, Software Engineering, or Information Systems.\",\n  \"deadline\": \"2027-03-31\",\n  \"application_url\": \"https://example.com/demo/fintech-training-apply\",\n  \"location\": \"Addis Ababa, Ethiopia (Hybrid)\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        },
+        "description": "Creates a new valid demonstration opportunity. Expected: 201 Created."
+      }
+    },
+    {
+      "name": "09 - Create Opportunity (Missing Title - 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organization\": \"Tech Ethiopia\",\n  \"type\": \"Internships\",\n  \"description\": \"Missing required title field\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        },
+        "description": "Tests input validation when required title is omitted. Expected: 400 Bad Request."
+      }
+    },
+    {
+      "name": "10 - Create Opportunity (Invalid Type - 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Valid Title\",\n  \"organization\": \"Valid Org\",\n  \"type\": \"Freelance Gigs\",\n  \"description\": \"Invalid category provided\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        },
+        "description": "Tests type validation against allowed categories. Expected: 400 Bad Request."
+      }
+    },
+    {
+      "name": "11 - Update Opportunity (Valid - 200)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Demonstration: Senior Software Engineering Internship (Updated)\",\n  \"organization\": \"TechEthio Innovations (Demonstration Entity)\",\n  \"type\": \"Internships\",\n  \"field\": \"Software Engineering & Cloud\",\n  \"description\": \"Updated simulated internship description with enhanced curriculum and mentorship.\",\n  \"eligibility\": \"Final year undergraduate or recent graduates.\",\n  \"deadline\": \"2027-01-31\",\n  \"application_url\": \"https://example.com/demo/updated-apply\",\n  \"location\": \"Addis Ababa, Ethiopia\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "1"]
+        },
+        "description": "Updates an existing opportunity. Expected: 200 OK."
+      }
+    },
+    {
+      "name": "12 - Update Opportunity (Nonexistent ID - 404)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated Title\",\n  \"organization\": \"Updated Org\",\n  \"type\": \"Internships\",\n  \"description\": \"Updated description\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "99999"]
+        },
+        "description": "Attempts to update a non-existent opportunity ID. Expected: 404 Not Found."
+      }
+    },
+    {
+      "name": "13 - Delete Opportunity (Valid - 204)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "1"]
+        },
+        "description": "Deletes an existing opportunity. Expected: 204 No Content."
+      }
+    },
+    {
+      "name": "14 - Delete Opportunity (Nonexistent ID - 404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "99999"]
+        },
+        "description": "Attempts to delete a non-existent opportunity. Expected: 404 Not Found."
+      }
+    },
+    {
+      "name": "15 - Invalid Endpoint (404 Not Found)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/nonexistent-route",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "nonexistent-route"]
+        },
+        "description": "Tests global 404 handler for undefined route. Expected: 404 Not Found."
+      }
+    }
+  ]
+}
