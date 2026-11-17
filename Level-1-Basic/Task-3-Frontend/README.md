@@ -1,152 +1,114 @@
-# Menged Dynamic Frontend — Level 1 Task 3
+# Menged (መንገድ) Dynamic Frontend — Level 1 Task 3
 
 > **Codveda Full-Stack Development Internship**  
 > **Level 1 (Basic) — Task 3: Build a Dynamic Frontend with Vanilla JavaScript**  
-> **Developer:** Haleta  
-> **Project:** Menged (Opportunity Discovery Platform for Ethiopian University Students and Graduates)
+> **Platform:** Menged (Opportunity Discovery & Career Management Platform for Ethiopian University Students and Graduates)  
+> **Concept:** *Discover opportunities. Build your future.*  
+> **Developer:** Haleta
 
 ---
 
 ## 1. Project Overview
 
-**Menged** (መንገድ — "Path" or "Way" in Amharic) is a dedicated platform designed to help Ethiopian university students, recent graduates, and aspiring technologists discover internships, scholarships, remote tech jobs, training programs, and fellowships.
+**Menged** (መንገድ — "Path" or "Way" in Amharic) is a dedicated platform designed to help Ethiopian university students, recent graduates, and aspiring technologists discover internships, scholarships, remote tech jobs, training bootcamps, and fellowships.
 
-Task 3 completes Level 1 by providing a modern, accessible, and responsive user interface built using **HTML5**, **CSS3**, and **Vanilla JavaScript**. The frontend communicates seamlessly with the **Express REST API** and **PostgreSQL database** constructed in Task 2 using the native browser **Fetch API**.
-
----
-
-## 2. Technologies Used
-
-- **Markup:** Semantic HTML5
-- **Styling:** CSS3 (Custom properties, CSS Grid, Flexbox, Keyframe animations)
-- **Scripting:** Vanilla JavaScript (ES6+, `async/await`, Fetch API)
-- **Backend API:** Node.js / Express.js (from Task 2, running on port 5000)
-- **Database:** PostgreSQL (`menged_db`)
-- **Typography:** Plus Jakarta Sans & Noto Sans Ethiopic (Google Fonts)
+Task 3 delivers an enterprise-grade, modern, and fully responsive user interface built using **HTML5**, **CSS3**, and **Vanilla JavaScript**. The frontend communicates seamlessly with the **Express REST API** and **PostgreSQL database** constructed in Task 2 using the browser's native **Fetch API**.
 
 ---
 
-## 3. Directory Structure
+## 2. Brand Identity & Color System
 
-```
-Task-3-Frontend/
-│
-├── index.html                          # Semantic HTML5 single-page application structure
-│
-├── css/
-│   └── style.css                       # Responsive CSS3 styles, variables, and animations
-│
-├── js/
-│   └── app.js                          # Vanilla JavaScript logic, state, and API integration
-│
-├── documentation/
-│   └── FRONTEND_DOCUMENTATION.md       # In-depth technical architecture and component specs
-│
-├── screenshots/
-│   └── README.md                       # Evaluation evidence and screenshot checklist
-│
-└── README.md                           # Master Task 3 documentation
-```
+The design implements the official Menged Design Specification:
+
+| Token | Hex | Role |
+|---|---|---|
+| **Deep Emerald** | `#064E3B` | Primary brand color & identity |
+| **Forest Green** | `#0B6B50` | Primary buttons, active links, and positive emphasis |
+| **Light Emerald** | `#D1FAE5` | Background highlights & category badge surfaces |
+| **Warm White** | `#FAFAF7` | Main page background |
+| **Pure White** | `#FFFFFF` | Cards, navigation bar, and dialog surfaces |
+| **Soft Blue** | `#DBEAFE` | Secondary hero gradients and highlights |
+| **Deep Navy** | `#172554` | Headings, titles, and high-contrast typography |
+| **Soft Orange / Gold** | `#F4A261` / `#D97706` | Brand compass star accent and deadline tags |
+| **Muted Grey** | `#64748B` | Body copy and secondary text |
 
 ---
 
-## 4. Frontend Features
+## 3. Typography Stack
 
-### 4.1 Navigation & Branding
-- Modern navbar featuring the Menged brand icon and dual English/Amharic typography.
-- Smooth scrolling navigation links (`#home`, `#opportunities`, `#manage`, `#about`).
-- Responsive mobile hamburger menu with accessible ARIA toggle.
-
-### 4.2 Hero Section
-- Clean value proposition tailored to Ethiopian university students and graduates.
-- Call-to-action buttons for rapid exploration or posting new opportunities.
-- Live platform statistics and interactive visual card preview.
-
-### 4.3 Opportunity Discovery Grid
-- Fetches real opportunity records dynamically from the PostgreSQL database via `GET /api/opportunities`.
-- Category badges with distinct color styling (`Internships`, `Scholarships`, `Remote jobs`, `Training programs`, `Fellowships`).
-- Informative chips showing location and application deadlines.
-- "View Details" trigger and direct "Apply" button links.
-
-### 4.4 Search and Filtering
-- **Keyword Search:** Real-time search across titles, organizations, and descriptions with a **300ms debounce** to optimize network traffic.
-- **Category Filter:** Filter by specific opportunity type.
-- **Field Filter:** Filter by technical discipline (Software Engineering, Computer Science, AI, Cloud, etc.).
-- **Reset Filters:** Instant reset button restoring default view.
-- **Empty State:** User-friendly feedback when no records match search parameters.
-
-### 4.5 Opportunity Details Modal
-- Detailed view presenting full description, eligibility criteria, deadline, and host organization.
-- Accessible modal navigation (close on button, click outside, or `Escape` key).
-- Direct "Edit" and "Delete" shortcuts.
-
-### 4.6 Full CRUD Opportunity Management
-- **Create (POST):** Add a new opportunity with client-side validation.
-- **Read (GET):** Live database record table with instant refresh.
-- **Update (PUT):** Pre-populates the form for editing and updates the record in PostgreSQL.
-- **Delete (DELETE):** Deletes a record permanently with an explicit confirmation dialog.
-- **Toast Notifications:** Feedback banners confirming success or displaying validation/network errors.
-
-### 4.7 Defensive Error Handling
-- Persistent warning banner if the Express/PostgreSQL backend is offline.
-- Skeleton loading cards while fetching data.
+- **Headings & Brand Title:** `Plus Jakarta Sans` (Google Fonts)
+- **Body & Controls:** `Inter` (Google Fonts)
+- **Ethiopic Text:** `Noto Sans Ethiopic` (Google Fonts)
 
 ---
 
-## 5. How to Run the Application
+## 4. Key Sections & Interactive Features
 
-### Step 1: Start the Task 2 Backend API
-Ensure PostgreSQL is running, then start the Express server in your terminal:
+### 4.1 Sticky Navigation Bar
+- Embedded **Menged Compass Logo** (`assets/logo.png`) representing navigation, guidance, and discovery.
+- Brand name displayed in English and Amharic (**MENGED መንገድ**).
+- Navigation links (`Discover`, `Categories`, `How It Works`, `Why Menged`, `About`).
+- Action triggers: `Sign In` and `Get Started`.
+- Responsive mobile hamburger menu with smooth slide-down animation.
+
+### 4.2 Hero Section (Two-Column with 3D Floating Cards)
+- Left side: Prominent headline (*"Discover opportunities. Build your future."*), descriptive narrative, and primary action buttons.
+- Right side: **Three interactive 3D floating opportunity cards** (`Featured Scholarship`, `Remote Internship`, `Training Bootcamp`) with slow CSS floating keyframe animations and mouse parallax interaction.
+
+### 4.3 Section 02: Opportunity Categories
+- 5 dedicated category cards:
+  - 💼 **Internships**
+  - 🎓 **Scholarships**
+  - 💻 **Remote Jobs**
+  - 📚 **Training Programs**
+  - 🌐 **Fellowships**
+- Clicking any category card automatically filters the discovery section and smoothly scrolls there.
+
+### 4.4 Section 03: Opportunity Discovery (Live REST API & PostgreSQL)
+- **Keyword Search:** Real-time search across titles, organizations, and descriptions with a **300ms debounce** to prevent excessive network requests.
+- **Category Filter Pills:** All, Internships, Scholarships, Remote Jobs, Training Programs, Fellowships.
+- **Secondary Filters:** Academic discipline dropdown, Location dropdown, and Sorting (*Newest First*, *Approaching Deadline*, *Alphabetical*).
+- **Dynamic Cards Grid:** Populated via `GET http://localhost:5000/api/opportunities`:
+  - Organization initial avatar.
+  - Category pill badge.
+  - Title, Organization, Field, and Location chips.
+  - Truncated description snippet.
+  - Approaching deadline counter.
+  - Interactive **"View Details"** trigger with 3D card tilt on hover.
+- **Defensive States:** Shimmering skeleton cards during data fetching, clean empty state when no records match, and an alert banner if the backend is offline.
+
+### 4.5 Section 04: How Menged Works (3-Step Journey)
+- `01. Discover` → `02. Explore` → `03. Take Action`.
+
+### 4.6 Section 05: Why Menged?
+- Benefits grid: Centralized discovery, organized information, relevant opportunities, and a growing community.
+
+### 4.7 Section 06: Call to Action (CTA)
+- Deep emerald banner inviting students and graduates to begin their opportunity journey.
+
+### 4.8 Section 07: Footer
+- Comprehensive brand description, category links, platform navigation, and copyright.
+
+### 4.9 Opportunity Details Modal
+- Clean overlay displaying full opportunity description, eligibility requirements, field, location, and the official external **"Apply Now"** link.
+
+### 4.10 Evaluator / Developer CRUD Portal
+- A foldable interactive management panel at the bottom of the page designed for internship evaluation of `POST`, `GET`, `PUT`, and `DELETE` operations connected directly to PostgreSQL.
+
+---
+
+## 5. How to Run and View the Application
+
+### Step 1: Start the Backend (Port 5000)
+In your terminal:
 ```powershell
 cd Level-1-Basic\Task-2-REST-API
 npm run dev
 ```
 
-Verify that the backend is live at:
-`http://localhost:5000/api/health`
-
 ### Step 2: Open the Frontend
-Since the frontend uses standard HTML, CSS, and Vanilla JavaScript, you can open it in any modern browser:
-
-- **Option A (VS Code Live Server extension):**
-  Right-click `Level-1-Basic/Task-3-Frontend/index.html` -> Click **Open with Live Server**.
-
-- **Option B (Direct Browser File):**
-  Double-click `Level-1-Basic/Task-3-Frontend/index.html` or open it in Google Chrome, Microsoft Edge, or Mozilla Firefox:
-  ```powershell
-  Start-Process "Level-1-Basic\Task-3-Frontend\index.html"
-  ```
-
----
-
-## 6. How to Test Frontend Features
-
-1. **Test Discovery:**
-   - Open the page. Verify that the 5 demonstration opportunities stored in PostgreSQL load into the discovery grid.
-2. **Test Search & Filtering:**
-   - Type `"Software"` in the search box. Notice the debounced search filters results to matching opportunities.
-   - Select `"Internships"` from the Category dropdown. Verify only internship cards are displayed.
-   - Click `"Reset Filters"`. Verify all opportunities reappear.
-3. **Test Opportunity Details:**
-   - Click `"View Details"` on any opportunity card. Verify the modal opens with full descriptions, eligibility, and deadline.
-   - Press `Escape` to close the modal.
-4. **Test Create (POST):**
-   - Scroll to the "Manage Opportunities" section.
-   - Fill in Title, Organization, Category, and Description. Click **Submit Opportunity**.
-   - Verify the success toast appears and the new opportunity immediately appears in the grid.
-5. **Test Edit (PUT):**
-   - Find your newly created opportunity in the management table. Click **Edit**.
-   - Modify the title. Click **Update Opportunity**.
-   - Verify the update is reflected in the grid and table.
-6. **Test Delete (DELETE):**
-   - Click **Delete** on the test opportunity in the table.
-   - Confirm deletion in the modal dialog. Verify the record is permanently removed from the database.
-7. **Test Responsive Design:**
-   - Press `F12` to open Developer Tools and toggle the device toolbar to test mobile and tablet viewports.
-
----
-
-## 7. Known Limitations
-
-- **Authentication:** In accordance with Codveda Level 1 guidelines, user accounts and authentication are deliberately omitted. Any user can post or manage opportunities for evaluation purposes.
-- **Demonstration Data:** All seeded opportunities are simulated demonstration records created for portfolio and internship review purposes.
+In PowerShell:
+```powershell
+Start-Process "Level-1-Basic\Task-3-Frontend\index.html"
+```
+Or right-click `index.html` in VS Code and select **Open with Live Server**.
