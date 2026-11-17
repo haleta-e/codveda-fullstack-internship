@@ -1,20 +1,22 @@
 /**
  * =============================================================================
- * MENGED (መንገድ) - FRONTEND APPLICATION SCRIPT
+ * MENGED (መንገድ) - OFFICIAL APPLICATION SCRIPT
+ * Concept: Discover opportunities. Build your future.
  * Level 1: Task 3 - Dynamic Frontend with Vanilla JavaScript
- * Author: Haleta (Codveda Full-Stack Development Internship)
  * =============================================================================
  */
 
 // Global API Base URL Configuration
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Application State
+// Application State Model
 const state = {
   opportunities: [],
   filteredOpportunities: [],
-  activeType: 'All',
+  activeCategory: 'All',
   activeField: 'All',
+  activeLocation: 'All',
+  activeSort: 'newest',
   searchQuery: '',
   isEditing: false,
   editingId: null,
@@ -24,7 +26,7 @@ const state = {
 };
 
 // =============================================================================
-// UTILITY FUNCTIONS
+// UTILITY & SANITIZATION HELPERS
 // =============================================================================
 
 /**
@@ -41,10 +43,10 @@ function escapeHtml(str) {
 }
 
 /**
- * Format ISO date string to readable human format (e.g. Dec 31, 2026)
+ * Format ISO date string into readable format (e.g. Dec 31, 2026)
  */
 function formatDate(dateString) {
-  if (!dateString) return 'No deadline specified';
+  if (!dateString) return 'Rolling Basis';
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
@@ -59,27 +61,27 @@ function formatDate(dateString) {
 }
 
 /**
- * Map opportunity category to appropriate CSS badge class
+ * Map category type to badge CSS class
  */
-function getCategoryBadgeClass(type) {
+function getCategoryPillClass(type) {
   switch (type) {
     case 'Internships':
-      return 'category-internships';
+      return 'pill-internship';
     case 'Scholarships':
-      return 'category-scholarships';
+      return 'pill-scholarship';
     case 'Remote jobs':
-      return 'category-remote-jobs';
+      return 'pill-remote';
     case 'Training programs':
-      return 'category-training-programs';
+      return 'pill-training';
     case 'Fellowships':
-      return 'category-fellowships';
+      return 'pill-fellowship';
     default:
-      return 'category-internships';
+      return 'pill-internship';
   }
 }
 
 /**
- * Display toast notification to the user
+ * Toast notification system
  */
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
@@ -104,11 +106,11 @@ function showToast(message, type = 'info') {
 }
 
 // =============================================================================
-// API SERVICE (Fetch API & async/await)
+// REST API INTEGRATION (Fetch API & async/await)
 // =============================================================================
 
 /**
- * Check if Express backend is running via GET /api/health
+ * Check if the Express backend is online
  */
 async function checkBackendHealth() {
   const banner = document.getElementById('backend-status-banner');
@@ -119,9 +121,9 @@ async function checkBackendHealth() {
       if (banner) banner.classList.add('hidden');
       return true;
     } else {
-      throw new Error(`Health status ${res.status}`);
+      throw new Error(`Health response ${res.status}`);
     }
-  } catch (err) {
+  } catch (_) {
     state.isBackendOnline = false;
     if (banner) banner.classList.remove('hidden');
     return false;
@@ -129,7 +131,7 @@ async function checkBackendHealth() {
 }
 
 /**
- * Fetch opportunities from the REST API with query parameters
+ * Fetch opportunity records from REST API
  */
 async function fetchOpportunities() {
   renderLoadingState();
@@ -138,8 +140,8 @@ async function fetchOpportunities() {
   try {
     const queryParams = new URLSearchParams();
 
-    if (state.activeType && state.activeType !== 'All') {
-      queryParams.append('type', state.activeType);
+    if (state.activeCategory && state.activeCategory !== 'All') {
+      queryParams.append('type', state.activeCategory);
     }
 
     if (state.activeField && state.activeField !== 'All') {
@@ -157,13 +159,37 @@ async function fetchOpportunities() {
     const response = await fetch(url);
 
     if (!response.ok) {
-      const errorJson = await response.json().catch(() => ({}));
-      throw new Error(errorJson.message || `Server responded with ${response.status}`);
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || `API error (${response.status})`);
     }
 
-    const result = await response.json();
-    state.opportunities = result.data || [];
-    state.filteredOpportunities = state.opportunities;
+    const json = await response.json();
+    let opportunities = json.data || [];
+
+    // Client-side Location filter if selected
+    if (state.activeLocation && state.activeLocation !== 'All') {
+      opportunities = opportunities.filter((item) => {
+        if (!item.location) return false;
+        return item.location.toLowerCase().includes(state.activeLocation.toLowerCase());
+      });
+    }
+
+    // Client-side Sorting
+    if (state.activeSort === 'deadline') {
+      opportunities.sort((a, b) => {
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
+    } else if (state.activeSort === 'title') {
+      opportunities.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      // Newest first by default
+      opportunities.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+
+    state.opportunities = opportunities;
+    state.filteredOpportunities = opportunities;
 
     renderOpportunities(state.filteredOpportunities);
     renderManagementTable(state.opportunities);
@@ -173,7 +199,7 @@ async function fetchOpportunities() {
     if (banner) banner.classList.add('hidden');
     state.isBackendOnline = true;
   } catch (error) {
-    console.error('Error fetching opportunities:', error);
+    console.error('Error connecting to Menged API:', error);
     renderErrorState(error.message);
     const banner = document.getElementById('backend-status-banner');
     if (banner) banner.classList.remove('hidden');
@@ -186,11 +212,9 @@ async function fetchOpportunities() {
  */
 async function fetchOpportunityById(id) {
   try {
-    const response = await fetch(`${API_BASE_URL}/opportunities/${id}`);
-    if (!response.ok) {
-      throw new Error(`Failed to load opportunity with ID ${id}`);
-    }
-    const result = await response.json();
+    const res = await fetch(`${API_BASE_URL}/opportunities/${id}`);
+    if (!res.ok) throw new Error(`Could not load opportunity #${id}`);
+    const result = await res.json();
     return result.data;
   } catch (err) {
     showToast(err.message, 'error');
@@ -199,216 +223,207 @@ async function fetchOpportunityById(id) {
 }
 
 /**
- * Create a new opportunity via POST /api/opportunities
+ * Create opportunity via POST /api/opportunities
  */
 async function createOpportunity(payload) {
-  const response = await fetch(`${API_BASE_URL}/opportunities`, {
+  const res = await fetch(`${API_BASE_URL}/opportunities`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    const errorMsg = data.errors ? data.errors.join(' ') : data.message || 'Creation failed';
-    throw new Error(errorMsg);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.errors ? data.errors.join(' ') : data.message || 'Creation failed';
+    throw new Error(msg);
   }
-
   return data;
 }
 
 /**
- * Update an existing opportunity via PUT /api/opportunities/:id
+ * Update opportunity via PUT /api/opportunities/:id
  */
 async function updateOpportunity(id, payload) {
-  const response = await fetch(`${API_BASE_URL}/opportunities/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/opportunities/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    const errorMsg = data.errors ? data.errors.join(' ') : data.message || 'Update failed';
-    throw new Error(errorMsg);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.errors ? data.errors.join(' ') : data.message || 'Update failed';
+    throw new Error(msg);
   }
-
   return data;
 }
 
 /**
- * Delete an opportunity via DELETE /api/opportunities/:id
+ * Delete opportunity via DELETE /api/opportunities/:id
  */
 async function deleteOpportunity(id) {
-  const response = await fetch(`${API_BASE_URL}/opportunities/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/opportunities/${id}`, {
     method: 'DELETE',
   });
-
-  if (!response.ok && response.status !== 204) {
-    const data = await response.json().catch(() => ({}));
+  if (!res.ok && res.status !== 204) {
+    const data = await res.json().catch(() => ({}));
     throw new Error(data.message || `Failed to delete opportunity #${id}`);
   }
-
   return true;
 }
 
 // =============================================================================
-// DOM RENDERING FUNCTIONS
+// DOM RENDERING
 // =============================================================================
 
-/**
- * Render loading skeleton placeholders
- */
 function renderLoadingState() {
   const grid = document.getElementById('opportunities-grid');
   if (!grid) return;
-
   grid.innerHTML = Array(6)
     .fill(0)
     .map(
       () => `
       <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton-line skeleton-badge"></div>
-        <div class="skeleton-line skeleton-title"></div>
-        <div class="skeleton-line skeleton-text-short"></div>
-        <div class="skeleton-line skeleton-text"></div>
-        <div class="skeleton-line skeleton-text"></div>
-        <div class="skeleton-line skeleton-text-short"></div>
+        <div class="skeleton-shimmer" style="height: 22px; width: 100px; border-radius: 9999px;"></div>
+        <div class="skeleton-shimmer" style="height: 24px; width: 85%;"></div>
+        <div class="skeleton-shimmer" style="height: 14px; width: 50%;"></div>
+        <div class="skeleton-shimmer" style="height: 12px; width: 100%;"></div>
+        <div class="skeleton-shimmer" style="height: 12px; width: 80%;"></div>
       </div>
     `
     )
     .join('');
 }
 
-/**
- * Hide empty and error state cards
- */
 function hideEmptyAndErrorStates() {
-  const emptyState = document.getElementById('empty-state');
-  const errorState = document.getElementById('error-state');
-  if (emptyState) emptyState.classList.add('hidden');
-  if (errorState) errorState.classList.add('hidden');
+  const empty = document.getElementById('empty-state');
+  const error = document.getElementById('error-state');
+  if (empty) empty.classList.add('hidden');
+  if (error) error.classList.add('hidden');
 }
 
-/**
- * Render opportunity cards into the discovery grid
- */
 function renderOpportunities(opportunities) {
   const grid = document.getElementById('opportunities-grid');
-  const emptyState = document.getElementById('empty-state');
+  const empty = document.getElementById('empty-state');
   if (!grid) return;
 
   if (!opportunities || opportunities.length === 0) {
     grid.innerHTML = '';
-    if (emptyState) emptyState.classList.remove('hidden');
+    if (empty) empty.classList.remove('hidden');
     return;
   }
 
-  if (emptyState) emptyState.classList.add('hidden');
+  if (empty) empty.classList.add('hidden');
 
   grid.innerHTML = opportunities
     .map((item) => {
-      const badgeClass = getCategoryBadgeClass(item.type);
+      const pillClass = getCategoryPillClass(item.type);
       const formattedDeadline = formatDate(item.deadline);
+      const initial = item.organization ? item.organization.charAt(0).toUpperCase() : 'M';
 
       return `
       <article class="opportunity-card" data-id="${item.id}">
         <div class="card-top">
-          <span class="badge ${badgeClass}">${escapeHtml(item.type)}</span>
-          <span class="meta-chip">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            ${escapeHtml(formattedDeadline)}
-          </span>
+          <div class="org-avatar">${escapeHtml(initial)}</div>
+          <span class="pill-badge ${pillClass}">${escapeHtml(item.type)}</span>
         </div>
 
         <h3 class="card-title">${escapeHtml(item.title)}</h3>
-        <p class="card-org">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 21h18"></path>
-            <path d="M5 21V7l8-4v18"></path>
-            <path d="M19 21V11l-6-4"></path>
-          </svg>
-          ${escapeHtml(item.organization)}
-        </p>
+        <p class="card-org-name">${escapeHtml(item.organization)}</p>
 
-        <div class="card-meta">
+        <div class="card-tags">
           ${
             item.field
-              ? `<span class="meta-chip">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                  </svg>
+              ? `<span class="tag-chip">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
                   ${escapeHtml(item.field)}
                 </span>`
               : ''
           }
           ${
             item.location
-              ? `<span class="meta-chip">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
+              ? `<span class="tag-chip">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                   ${escapeHtml(item.location)}
                 </span>`
               : ''
           }
         </div>
 
-        <p class="card-desc">${escapeHtml(item.description)}</p>
+        <p class="card-description">${escapeHtml(item.description)}</p>
 
-        <div class="card-actions">
-          <button class="btn btn-sm btn-secondary view-details-btn" data-id="${item.id}">
-            View Details
+        <div class="card-footer">
+          <span class="deadline-text">Deadline: <strong>${escapeHtml(formattedDeadline)}</strong></span>
+          <button class="view-details-action view-details-trigger" data-id="${item.id}">
+            View Details &rarr;
           </button>
-          ${
-            item.application_url
-              ? `<a href="${escapeHtml(item.application_url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
-                  Apply
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
-                </a>`
-              : `<button class="btn btn-sm btn-secondary view-details-btn" data-id="${item.id}">Learn More</button>`
-          }
         </div>
       </article>
     `;
     })
     .join('');
 
-  // Attach event listeners to "View Details" buttons
-  document.querySelectorAll('.view-details-btn').forEach((btn) => {
+  // Attach card detail triggers
+  document.querySelectorAll('.view-details-trigger').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const id = e.currentTarget.getAttribute('data-id');
       openDetailsModal(id);
     });
   });
+
+  // Attach 3D tilt effect on hover for opportunity cards
+  attachCard3DTilt();
 }
 
 /**
- * Render management table in the CRUD section
+ * 3D Card Tilt Interaction
  */
+function attachCard3DTilt() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.innerWidth < 768) return;
+
+  const cards = document.querySelectorAll('.opportunity-card');
+  cards.forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -4;
+      const rotateY = ((x - centerX) / centerX) * 4;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+    });
+  });
+}
+
+function renderErrorState(message) {
+  const grid = document.getElementById('opportunities-grid');
+  const error = document.getElementById('error-state');
+  const desc = document.getElementById('error-description');
+  if (grid) grid.innerHTML = '';
+  if (desc) {
+    desc.textContent =
+      message || 'Unable to connect to the Menged REST API server. Ensure Express and PostgreSQL are running.';
+  }
+  if (error) error.classList.remove('hidden');
+}
+
+function updateResultsCount(count) {
+  const badge = document.getElementById('results-count');
+  if (!badge) return;
+  badge.textContent = count === 1 ? '1 opportunity found' : `${count} opportunities found`;
+}
+
 function renderManagementTable(opportunities) {
   const tbody = document.getElementById('management-table-body');
   if (!tbody) return;
 
   if (!opportunities || opportunities.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-          No opportunity records currently in the PostgreSQL database.
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--color-muted-grey); padding: 2rem;">No opportunity records in PostgreSQL database.</td></tr>`;
     return;
   }
 
@@ -421,18 +436,12 @@ function renderManagementTable(opportunities) {
         <div class="table-title-cell">${escapeHtml(item.title)}</div>
         <div class="table-org-cell">${escapeHtml(item.organization)}</div>
       </td>
-      <td>
-        <span class="badge ${getCategoryBadgeClass(item.type)}">${escapeHtml(item.type)}</span>
-      </td>
+      <td><span class="pill-badge ${getCategoryPillClass(item.type)}">${escapeHtml(item.type)}</span></td>
       <td>${escapeHtml(formatDate(item.deadline))}</td>
       <td>
         <div class="table-actions">
-          <button class="btn btn-sm btn-secondary btn-icon edit-table-btn" data-id="${item.id}" title="Edit opportunity">
-            Edit
-          </button>
-          <button class="btn btn-sm btn-danger btn-icon delete-table-btn" data-id="${item.id}" data-title="${escapeHtml(item.title)}" title="Delete opportunity">
-            Delete
-          </button>
+          <button class="btn btn-sm btn-secondary edit-table-btn" data-id="${item.id}">Edit</button>
+          <button class="btn btn-sm btn-danger delete-table-btn" data-id="${item.id}" data-title="${escapeHtml(item.title)}">Delete</button>
         </div>
       </td>
     </tr>
@@ -440,7 +449,6 @@ function renderManagementTable(opportunities) {
     )
     .join('');
 
-  // Attach Edit and Delete listeners
   tbody.querySelectorAll('.edit-table-btn').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const id = e.currentTarget.getAttribute('data-id');
@@ -457,43 +465,10 @@ function renderManagementTable(opportunities) {
   });
 }
 
-/**
- * Render error state message with retry capability
- */
-function renderErrorState(message) {
-  const grid = document.getElementById('opportunities-grid');
-  const errorState = document.getElementById('error-state');
-  const errorDescription = document.getElementById('error-description');
-
-  if (grid) grid.innerHTML = '';
-  if (errorDescription) {
-    errorDescription.textContent =
-      message || 'Unable to connect to the Menged REST API server. Please make sure the backend is running.';
-  }
-  if (errorState) errorState.classList.remove('hidden');
-}
-
-/**
- * Update the dynamic results count badge
- */
-function updateResultsCount(count) {
-  const badge = document.getElementById('results-count');
-  if (!badge) return;
-
-  if (count === 1) {
-    badge.textContent = 'Showing 1 opportunity';
-  } else {
-    badge.textContent = `Showing ${count} opportunities`;
-  }
-}
-
 // =============================================================================
 // MODAL CONTROLLERS
 // =============================================================================
 
-/**
- * Open opportunity details modal
- */
 async function openDetailsModal(id) {
   const modal = document.getElementById('details-modal');
   if (!modal) return;
@@ -503,21 +478,18 @@ async function openDetailsModal(id) {
 
   document.getElementById('modal-title').textContent = item.title;
   document.getElementById('modal-organization').textContent = item.organization;
-  document.getElementById('modal-location').textContent = item.location || 'Location Not Specified';
-  document.getElementById('modal-field').textContent = item.field || 'General Tech';
+  document.getElementById('modal-location').textContent = item.location || 'Location Unspecified';
+  document.getElementById('modal-field').textContent = item.field || 'General Technology';
   document.getElementById('modal-deadline').textContent = formatDate(item.deadline);
   document.getElementById('modal-description').textContent = item.description;
 
-  // Category badge
-  const categoryBadge = document.getElementById('modal-category');
-  categoryBadge.textContent = item.type;
-  categoryBadge.className = `badge ${getCategoryBadgeClass(item.type)}`;
+  const catBadge = document.getElementById('modal-category');
+  catBadge.textContent = item.type;
+  catBadge.className = `pill-badge ${getCategoryPillClass(item.type)}`;
 
-  // Deadline badge
   const deadlineBadge = document.getElementById('modal-deadline-badge');
-  deadlineBadge.textContent = item.deadline ? `Deadline: ${formatDate(item.deadline)}` : 'Open Application';
+  deadlineBadge.textContent = item.deadline ? `Deadline: ${formatDate(item.deadline)}` : 'Rolling Applications';
 
-  // Eligibility section
   const eligSection = document.getElementById('modal-eligibility-section');
   const eligText = document.getElementById('modal-eligibility');
   if (item.eligibility && item.eligibility.trim().length > 0) {
@@ -527,7 +499,6 @@ async function openDetailsModal(id) {
     eligSection.classList.add('hidden');
   }
 
-  // Application link
   const applyLink = document.getElementById('modal-apply-link');
   if (item.application_url) {
     applyLink.href = item.application_url;
@@ -536,16 +507,15 @@ async function openDetailsModal(id) {
     applyLink.classList.add('hidden');
   }
 
-  // Edit and Delete buttons in modal
-  const editBtn = document.getElementById('modal-edit-btn');
-  const deleteBtn = document.getElementById('modal-delete-btn');
-
-  editBtn.onclick = () => {
+  // Edit / Delete in modal
+  document.getElementById('modal-edit-btn').onclick = () => {
     closeDetailsModal();
+    const portal = document.getElementById('crud-portal-content');
+    if (portal) portal.classList.remove('hidden');
     loadOpportunityIntoForm(item.id);
   };
 
-  deleteBtn.onclick = () => {
+  document.getElementById('modal-delete-btn').onclick = () => {
     closeDetailsModal();
     openDeleteConfirmation(item.id, item.title);
   };
@@ -554,9 +524,6 @@ async function openDetailsModal(id) {
   document.body.style.overflow = 'hidden';
 }
 
-/**
- * Close opportunity details modal
- */
 function closeDetailsModal() {
   const modal = document.getElementById('details-modal');
   if (modal) {
@@ -565,24 +532,17 @@ function closeDetailsModal() {
   }
 }
 
-/**
- * Open delete confirmation modal
- */
 function openDeleteConfirmation(id, title) {
   state.pendingDeleteId = id;
   const modal = document.getElementById('delete-modal');
-  const titleElem = document.getElementById('delete-opportunity-title');
-
-  if (titleElem) titleElem.textContent = title || `Opportunity #${id}`;
+  const target = document.getElementById('delete-opportunity-title');
+  if (target) target.textContent = title || `Opportunity #${id}`;
   if (modal) {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
 }
 
-/**
- * Close delete confirmation modal
- */
 function closeDeleteConfirmation() {
   state.pendingDeleteId = null;
   const modal = document.getElementById('delete-modal');
@@ -593,12 +553,9 @@ function closeDeleteConfirmation() {
 }
 
 // =============================================================================
-// FORM & CRUD HANDLERS
+// CRUD FORM HANDLERS
 // =============================================================================
 
-/**
- * Populate management form with an existing record for editing
- */
 async function loadOpportunityIntoForm(id) {
   const item = await fetchOpportunityById(id);
   if (!item) return;
@@ -617,28 +574,16 @@ async function loadOpportunityIntoForm(id) {
   document.getElementById('form-description').value = item.description || '';
   document.getElementById('form-eligibility').value = item.eligibility || '';
 
-  // Update form UI headings
   document.getElementById('form-heading').textContent = `Edit Opportunity #${item.id}`;
-  document.getElementById('form-subheading').textContent = `Update opportunity details in the PostgreSQL database.`;
+  document.getElementById('form-subheading').textContent = 'Modify opportunity details and update PostgreSQL.';
   document.getElementById('submit-btn-text').textContent = 'Update Opportunity';
   document.getElementById('cancel-edit-btn').classList.remove('hidden');
 
-  // Clear previous errors
-  clearFormValidationErrors();
-
-  // Smooth scroll to form
-  const formSection = document.getElementById('manage-form-section');
-  if (formSection) {
-    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  showToast(`Loaded "${item.title}" for editing`, 'info');
+  const formSec = document.getElementById('manage-form-section');
+  if (formSec) formSec.scrollIntoView({ behavior: 'smooth' });
 }
 
-/**
- * Reset form back to "Create New Opportunity" mode
- */
-function resetFormToCreateMode() {
+function resetFormToCreate() {
   state.isEditing = false;
   state.editingId = null;
 
@@ -647,101 +592,55 @@ function resetFormToCreateMode() {
 
   document.getElementById('opportunity-id').value = '';
   document.getElementById('form-heading').textContent = 'Create New Opportunity';
-  document.getElementById('form-subheading').textContent = 'Fill in the fields below to add a record to PostgreSQL.';
+  document.getElementById('form-subheading').textContent = 'Fill in the fields to add a record directly to PostgreSQL.';
   document.getElementById('submit-btn-text').textContent = 'Submit Opportunity';
   document.getElementById('cancel-edit-btn').classList.add('hidden');
 
-  clearFormValidationErrors();
+  document.querySelectorAll('.form-control').forEach((el) => el.classList.remove('is-invalid'));
+  document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
 }
 
-/**
- * Client-side validation of the opportunity form
- */
-function validateForm() {
-  clearFormValidationErrors();
-  let isValid = true;
+async function handleFormSubmit(e) {
+  e.preventDefault();
 
   const title = document.getElementById('form-title').value.trim();
   const organization = document.getElementById('form-organization').value.trim();
   const type = document.getElementById('form-type').value;
   const description = document.getElementById('form-description').value.trim();
-  const url = document.getElementById('form-url').value.trim();
 
+  let isValid = true;
   if (!title) {
-    setFieldError('form-title', 'title-error', 'Opportunity title is required.');
-    isValid = false;
-  } else if (title.length > 200) {
-    setFieldError('form-title', 'title-error', 'Title cannot exceed 200 characters.');
+    document.getElementById('form-title').classList.add('is-invalid');
+    document.getElementById('title-error').textContent = 'Title is required.';
     isValid = false;
   }
-
   if (!organization) {
-    setFieldError('form-organization', 'organization-error', 'Organization name is required.');
+    document.getElementById('form-organization').classList.add('is-invalid');
+    document.getElementById('organization-error').textContent = 'Organization is required.';
     isValid = false;
   }
-
   if (!type) {
-    setFieldError('form-type', 'type-error', 'Please select an opportunity category.');
+    document.getElementById('form-type').classList.add('is-invalid');
+    document.getElementById('type-error').textContent = 'Please select a category.';
     isValid = false;
   }
-
   if (!description) {
-    setFieldError('form-description', 'description-error', 'Description is required.');
+    document.getElementById('form-description').classList.add('is-invalid');
+    document.getElementById('description-error').textContent = 'Description is required.';
     isValid = false;
   }
 
-  if (url) {
-    try {
-      const parsedUrl = new URL(url);
-      if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-        setFieldError('form-url', 'url-error', 'URL must begin with http:// or https://');
-        isValid = false;
-      }
-    } catch (_) {
-      setFieldError('form-url', 'url-error', 'Please enter a valid URL.');
-      isValid = false;
-    }
-  }
-
-  return isValid;
-}
-
-function setFieldError(fieldId, errorId, message) {
-  const input = document.getElementById(fieldId);
-  const errorElem = document.getElementById(errorId);
-  if (input) input.classList.add('is-invalid');
-  if (errorElem) errorElem.textContent = message;
-}
-
-function clearFormValidationErrors() {
-  document.querySelectorAll('.form-control').forEach((input) => {
-    input.classList.remove('is-invalid');
-  });
-  document.querySelectorAll('.field-error').forEach((span) => {
-    span.textContent = '';
-  });
-}
-
-/**
- * Handle form submission (Create or Update)
- */
-async function handleFormSubmit(e) {
-  e.preventDefault();
-
-  if (!validateForm()) {
-    showToast('Please correct the highlighted form errors.', 'error');
-    return;
-  }
+  if (!isValid) return;
 
   const payload = {
-    title: document.getElementById('form-title').value.trim(),
-    organization: document.getElementById('form-organization').value.trim(),
-    type: document.getElementById('form-type').value,
+    title,
+    organization,
+    type,
     field: document.getElementById('form-field').value.trim() || null,
     location: document.getElementById('form-location').value.trim() || null,
     deadline: document.getElementById('form-deadline').value || null,
     application_url: document.getElementById('form-url').value.trim() || null,
-    description: document.getElementById('form-description').value.trim(),
+    description,
     eligibility: document.getElementById('form-eligibility').value.trim() || null,
   };
 
@@ -754,17 +653,10 @@ async function handleFormSubmit(e) {
       showToast('Opportunity updated successfully in database!', 'success');
     } else {
       await createOpportunity(payload);
-      showToast('New opportunity created successfully in database!', 'success');
+      showToast('New opportunity created in PostgreSQL!', 'success');
     }
-
-    resetFormToCreateMode();
+    resetFormToCreate();
     await fetchOpportunities();
-
-    // Scroll to opportunities discovery section to show new/updated record
-    const oppSection = document.getElementById('opportunities');
-    if (oppSection) {
-      oppSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
@@ -773,7 +665,7 @@ async function handleFormSubmit(e) {
 }
 
 // =============================================================================
-// EVENT LISTENERS & INITIALIZATION
+// EVENT LISTENERS & SETUP
 // =============================================================================
 
 function setupEventListeners() {
@@ -784,15 +676,10 @@ function setupEventListeners() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       state.searchQuery = e.target.value;
-
       if (clearSearchBtn) {
-        if (state.searchQuery.length > 0) {
-          clearSearchBtn.classList.remove('hidden');
-        } else {
-          clearSearchBtn.classList.add('hidden');
-        }
+        if (state.searchQuery.length > 0) clearSearchBtn.classList.remove('hidden');
+        else clearSearchBtn.classList.add('hidden');
       }
-
       clearTimeout(state.searchDebounceTimer);
       state.searchDebounceTimer = setTimeout(() => {
         fetchOpportunities();
@@ -809,16 +696,36 @@ function setupEventListeners() {
     });
   }
 
-  // Category Filter
-  const categoryFilter = document.getElementById('category-filter');
-  if (categoryFilter) {
-    categoryFilter.addEventListener('change', (e) => {
-      state.activeType = e.target.value;
+  // Category Filter Pills
+  document.querySelectorAll('.pill-filter').forEach((pill) => {
+    pill.addEventListener('click', (e) => {
+      document.querySelectorAll('.pill-filter').forEach((p) => p.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      state.activeCategory = e.currentTarget.getAttribute('data-category');
       fetchOpportunities();
     });
-  }
+  });
 
-  // Field Filter
+  // Category Cards in Section 02
+  document.querySelectorAll('.category-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const cat = card.getAttribute('data-category');
+      state.activeCategory = cat;
+
+      // Update active pill in discovery section
+      document.querySelectorAll('.pill-filter').forEach((pill) => {
+        if (pill.getAttribute('data-category') === cat) pill.classList.add('active');
+        else pill.classList.remove('active');
+      });
+
+      fetchOpportunities();
+
+      const discoverSec = document.getElementById('discover');
+      if (discoverSec) discoverSec.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Secondary Filters
   const fieldFilter = document.getElementById('field-filter');
   if (fieldFilter) {
     fieldFilter.addEventListener('change', (e) => {
@@ -827,34 +734,72 @@ function setupEventListeners() {
     });
   }
 
-  // Reset Filters Buttons
-  const resetFiltersBtn = document.getElementById('reset-filters-btn');
-  const emptyResetBtn = document.getElementById('empty-reset-btn');
+  const locationFilter = document.getElementById('location-filter');
+  if (locationFilter) {
+    locationFilter.addEventListener('change', (e) => {
+      state.activeLocation = e.target.value;
+      fetchOpportunities();
+    });
+  }
 
-  const resetAllFilters = () => {
-    state.activeType = 'All';
+  const sortSelect = document.getElementById('sort-select');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+      state.activeSort = e.target.value;
+      fetchOpportunities();
+    });
+  }
+
+  // Reset Filters
+  const resetFilters = () => {
+    state.activeCategory = 'All';
     state.activeField = 'All';
+    state.activeLocation = 'All';
+    state.activeSort = 'newest';
     state.searchQuery = '';
 
-    if (categoryFilter) categoryFilter.value = 'All';
-    if (fieldFilter) fieldFilter.value = 'All';
     if (searchInput) searchInput.value = '';
     if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+    if (fieldFilter) fieldFilter.value = 'All';
+    if (locationFilter) locationFilter.value = 'All';
+    if (sortSelect) sortSelect.value = 'newest';
+
+    document.querySelectorAll('.pill-filter').forEach((p) => {
+      if (p.getAttribute('data-category') === 'All') p.classList.add('active');
+      else p.classList.remove('active');
+    });
 
     fetchOpportunities();
   };
 
-  if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetAllFilters);
-  if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetAllFilters);
+  const resetBtn = document.getElementById('reset-filters-btn');
+  const emptyResetBtn = document.getElementById('empty-reset-btn');
+  if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+  if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetFilters);
 
-  // Form submission & cancellation
+  // Evaluator CRUD Portal Toggle
+  const toggleCrudBtn = document.getElementById('toggle-crud-portal-btn');
+  const crudPortal = document.getElementById('crud-portal-content');
+  const toggleText = document.getElementById('portal-toggle-text');
+
+  if (toggleCrudBtn && crudPortal) {
+    toggleCrudBtn.addEventListener('click', () => {
+      const isHidden = crudPortal.classList.toggle('hidden');
+      toggleText.textContent = isHidden ? 'Show CRUD Portal' : 'Hide CRUD Portal';
+      if (!isHidden) {
+        crudPortal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+  // Form submit & cancel
   const form = document.getElementById('opportunity-form');
   if (form) form.addEventListener('submit', handleFormSubmit);
 
   const cancelEditBtn = document.getElementById('cancel-edit-btn');
-  if (cancelEditBtn) cancelEditBtn.addEventListener('click', resetFormToCreateMode);
+  if (cancelEditBtn) cancelEditBtn.addEventListener('click', resetFormToCreate);
 
-  // Delete modal actions
+  // Delete modal buttons
   const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
   const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
   const deleteModalClose = document.getElementById('delete-modal-close');
@@ -862,11 +807,10 @@ function setupEventListeners() {
   if (confirmDeleteBtn) {
     confirmDeleteBtn.addEventListener('click', async () => {
       if (!state.pendingDeleteId) return;
-
       try {
         confirmDeleteBtn.disabled = true;
         await deleteOpportunity(state.pendingDeleteId);
-        showToast('Opportunity deleted permanently from PostgreSQL.', 'success');
+        showToast('Opportunity permanently removed from database.', 'success');
         closeDeleteConfirmation();
         await fetchOpportunities();
       } catch (err) {
@@ -880,7 +824,7 @@ function setupEventListeners() {
   if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteConfirmation);
   if (deleteModalClose) deleteModalClose.addEventListener('click', closeDeleteConfirmation);
 
-  // Details Modal close actions
+  // Details Modal close
   const modalCloseBtn = document.getElementById('modal-close-btn');
   const modalCancelBtn = document.getElementById('modal-cancel-btn');
   const detailsModal = document.getElementById('details-modal');
@@ -888,14 +832,12 @@ function setupEventListeners() {
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeDetailsModal);
   if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeDetailsModal);
 
-  // Click outside to close modals
   window.addEventListener('click', (e) => {
     if (e.target === detailsModal) closeDetailsModal();
-    const deleteModal = document.getElementById('delete-modal');
-    if (e.target === deleteModal) closeDeleteConfirmation();
+    const delModal = document.getElementById('delete-modal');
+    if (e.target === delModal) closeDeleteConfirmation();
   });
 
-  // ESC key to close open modals
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDetailsModal();
@@ -903,28 +845,24 @@ function setupEventListeners() {
     }
   });
 
-  // Retry buttons for network error
+  // Retries
   const retryBtn = document.getElementById('retry-connection-btn');
   const errorRetryBtn = document.getElementById('error-retry-btn');
   if (retryBtn) retryBtn.addEventListener('click', fetchOpportunities);
   if (errorRetryBtn) errorRetryBtn.addEventListener('click', fetchOpportunities);
 
-  // Refresh Table Button
   const refreshTableBtn = document.getElementById('refresh-table-btn');
   if (refreshTableBtn) refreshTableBtn.addEventListener('click', fetchOpportunities);
 
-  // Mobile Navigation Hamburger Toggle
+  // Mobile navigation
   const mobileToggle = document.getElementById('mobile-toggle');
   const navLinks = document.getElementById('nav-links');
-
   if (mobileToggle && navLinks) {
     mobileToggle.addEventListener('click', () => {
-      const isOpen = navLinks.classList.toggle('open');
-      mobileToggle.setAttribute('aria-expanded', isOpen);
+      const open = navLinks.classList.toggle('open');
+      mobileToggle.setAttribute('aria-expanded', open);
     });
-
-    // Close menu when clicking any nav link
-    navLinks.querySelectorAll('.nav-link, .nav-cta').forEach((link) => {
+    navLinks.querySelectorAll('.nav-link').forEach((link) => {
       link.addEventListener('click', () => {
         navLinks.classList.remove('open');
         mobileToggle.setAttribute('aria-expanded', 'false');
@@ -932,21 +870,51 @@ function setupEventListeners() {
     });
   }
 
-  // Footer Category Quick Filters
-  document.querySelectorAll('.footer-col a[data-category]').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const cat = link.getAttribute('data-category');
-      if (categoryFilter) categoryFilter.value = cat;
-      state.activeType = cat;
-      fetchOpportunities();
-      const oppSection = document.getElementById('opportunities');
-      if (oppSection) oppSection.scrollIntoView({ behavior: 'smooth' });
+  // Visual signin / register entry points
+  const showAuthNotice = () => {
+    showToast('Personal Workspace & Authentication will arrive in Level 2. Explore all opportunities freely now!', 'info');
+  };
+  const signinBtn = document.getElementById('signin-btn');
+  const ctaRegisterBtn = document.getElementById('cta-register-btn');
+  const footerSignin = document.getElementById('footer-signin-link');
+  const footerRegister = document.getElementById('footer-register-link');
+  if (signinBtn) signinBtn.addEventListener('click', showAuthNotice);
+  if (ctaRegisterBtn) ctaRegisterBtn.addEventListener('click', showAuthNotice);
+  if (footerSignin) footerSignin.addEventListener('click', (e) => { e.preventDefault(); showAuthNotice(); });
+  if (footerRegister) footerRegister.addEventListener('click', (e) => { e.preventDefault(); showAuthNotice(); });
+
+  // Floating Hero Cards Mouse Parallax
+  const heroScene = document.getElementById('hero-3d-scene');
+  if (heroScene && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.innerWidth >= 1024) {
+    heroScene.addEventListener('mousemove', (e) => {
+      const rect = heroScene.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) / 25;
+      const y = (e.clientY - rect.top - rect.height / 2) / 25;
+
+      document.querySelectorAll('.floating-card').forEach((card) => {
+        const speed = parseFloat(card.getAttribute('data-speed')) || 1;
+        card.style.transform = `translate3d(${x * speed}px, ${y * speed}px, 0)`;
+      });
     });
+
+    heroScene.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.floating-card').forEach((card) => {
+        card.style.transform = '';
+      });
+    });
+  }
+
+  // Navbar shadow on scroll
+  window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (navbar) {
+      if (window.scrollY > 20) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    }
   });
 }
 
-// Application Entry Point
+// App Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   await checkBackendHealth();
