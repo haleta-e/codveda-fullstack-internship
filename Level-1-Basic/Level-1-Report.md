@@ -1,99 +1,115 @@
-# Codveda Internship
-## Level 1: Basic
+# Codveda Internship — Level 1 Milestone Completion Report
+## Level 1: Basic (Full-Stack Development)
+
+**Intern Name:** Etsegenet Amsalu (Haleta)  
+**Project:** Menged (መንገድ — Opportunity Discovery Platform for Ethiopian Students and Graduates)  
+**Repository:** [https://github.com/haleta-e/codveda-fullstack-internship](https://github.com/haleta-e/codveda-fullstack-internship)  
+**Milestone Status:** **100% Completed & Verified**  
+**Core Stack:** HTML5, CSS3, Vanilla JavaScript (ES6+), Node.js (v24.18.0), Express.js (v4.21.2), PostgreSQL (v17.11)  
+**System Specifications:** [Product Requirements](../docs/PRODUCT_REQUIREMENTS.md) | [System Architecture](../docs/SYSTEM_ARCHITECTURE.md) | [Database Design](../docs/DATABASE_DESIGN.md) | [Data Standard](../docs/OPPORTUNITY_DATA_STANDARD.md) | [Roadmap](../docs/DEVELOPMENT_ROADMAP.md)
+
+---
 
 ### Task 1: Setup Development Environment
 
-**Status:** Completed
+**Status:** **Completed & Verified**
 
-**Technologies:**
-- Node.js
-- npm
-- Visual Studio Code
-- Git and GitHub
-- PostgreSQL
-- pgAdmin 4
-- PowerShell
+**Technologies & Tools:**
+- Node.js (v24.18.0)
+- npm (11.16.0)
+- Visual Studio Code & Development Extensions (Prettier, ESLint, GitLens, REST Client, PostgreSQL)
+- Git (v2.55.0.windows.3) & GitHub (`haleta-e`)
+- PostgreSQL (v17.11) & pgAdmin 4
+- Windows PowerShell
 
 **Completed Objectives:**
-
-1. Installed and configured Node.js and npm.
-2. Configured Visual Studio Code and development extensions.
-3. Created and configured a GitHub repository.
-4. Practiced basic Git commands.
-5. Installed and verified PostgreSQL.
-6. Practiced basic terminal commands.
-7. Prepared technical documentation and screenshots.
+1. Installed and configured Node.js runtime and npm package manager.
+2. Configured Visual Studio Code environment with syntax, formatting, and database extensions.
+3. Created and configured GitHub remote repository (`codveda-fullstack-internship`).
+4. Practiced essential Git workflow commands (`init`, `status`, `add`, `commit`, `log`, `branch`, `push`).
+5. Installed and verified PostgreSQL server connectivity via `psql` and pgAdmin 4.
+6. Practiced Windows PowerShell navigation and file management commands.
+7. Prepared technical documentation and captured 10 verification screenshots.
 
 **Deliverables:**
-- Environment setup documentation.
-- Installation and configuration screenshots.
-- GitHub repository containing the completed work.
+- Environment setup documentation (`Task-1-Environment-Setup/documentation/Task-1-Environment-Setup.md`).
+- 10 installation and verification screenshots (`Task-1-Environment-Setup/screenshots/`).
+- Task 1 README documentation (`Task-1-Environment-Setup/README.md`).
 
 ---
 
 ### Task 2: Build a Simple REST API
 
-**Status:** Completed
+**Status:** **Completed & Verified**
 
-**Project:** Menged (Opportunity Discovery Platform for Ethiopian University Students and Graduates)
+**Project:** Menged (Opportunity Discovery Platform)  
+**Primary Resource:** `Opportunity`  
+**Base URL:** `http://localhost:5000`  
 
 **Technologies:**
-- Node.js
-- Express.js
-- PostgreSQL
-- pg (node-postgres)
-- dotenv
-- cors
-- Postman / Thunder Client
+- Node.js (v24.18.0)
+- Express.js (v4.21.2)
+- PostgreSQL (v17.11)
+- `pg` (v8.13.1 — Connection Pool)
+- `dotenv` (v16.4.7) & `cors` (v2.8.5)
+- Postman & Thunder Client
 
 **Completed Objectives:**
-
-1. Initialized Node.js project and structured modular Express application architecture.
-2. Created PostgreSQL database (`menged_db`) schema with `opportunities` table, constraints, and indexes.
-3. Seeded initial demonstration opportunities across all core categories (Internships, Scholarships, Remote jobs, Training programs, Fellowships).
-4. Implemented full CRUD RESTful endpoints (`POST`, `GET`, `GET :id`, `PUT`, `DELETE`).
-5. Implemented centralized error handling and request validation (400, 404, 500, 204, 201, 200).
-6. Configured CORS and JSON body-parsing middleware.
-7. Prepared complete Postman/Thunder Client testing collection with 15 test scenarios.
-8. Authored technical documentation, database schema specification, and evidence screenshot guide.
+1. Initialized modular Express application architecture with separation of routes, controllers, configuration, and middleware.
+2. Designed and executed PostgreSQL schema (`menged_db`) with `opportunities` table, category `CHECK` constraint, and performance B-Tree indexes on `type`, `field`, and `deadline`.
+3. Seeded 5 demonstration opportunity records across all primary categories (Internships, Scholarships, Remote jobs, Training programs, Fellowships).
+4. Implemented RESTful CRUD endpoints (`GET /api/opportunities`, `GET /:id`, `POST /`, `PUT /:id`, `DELETE /:id`, and `GET /api/health`).
+5. Built flexible query filtering supporting `?type=`, `?field=`, and `?search=` across titles, organizations, and descriptions.
+6. Enforced parameterized SQL queries (`$1`, `$2`, etc.) preventing SQL injection vulnerabilities.
+7. Implemented centralized error handling mapping PostgreSQL error codes (22P02, 23502, 23514, ECONNREFUSED) to standard HTTP status codes (400, 404, 500, 204, 201, 200).
+8. Built and verified automated Postman collection covering 15 distinct test scenarios.
+9. Authored comprehensive API documentation, database schema specification, and task completion report.
 
 **Deliverables:**
-- Express REST API source code (`src/`).
-- PostgreSQL schema and demonstration seed scripts (`database/`).
-- Comprehensive API and Database documentation (`documentation/`).
-- Postman / Thunder Client automated test collection (`tests/`).
-- Task 2 README and submission evidence guide.
+- Express REST API source code (`src/app.js`, `src/server.js`, `src/config/`, `src/controllers/`, `src/middleware/`, `src/routes/`).
+- Database DDL schema and seed scripts (`database/schema.sql`, `database/seed.sql`).
+- Technical documentation (`documentation/API_DOCUMENTATION.md`, `documentation/DATABASE_SCHEMA.md`, `documentation/TASK_2_COMPLETION_REPORT.md`).
+- Automated Postman / Thunder Client test collection (`tests/Menged_API.postman_collection.json`).
+- Task 2 README documentation (`README.md`).
 
 ---
 
 ### Task 3: Build a Dynamic Frontend with Vanilla JavaScript
 
-**Status:** Completed
+**Status:** **Completed & Verified**
 
-**Project:** Menged (Opportunity Discovery Platform for Ethiopian University Students and Graduates)
+**Project:** Menged (Opportunity Discovery Platform)  
+**Design Concept:** *Discover opportunities. Build your future.*  
 
 **Technologies:**
-- HTML5
-- CSS3 (Custom properties, Flexbox, CSS Grid)
-- Vanilla JavaScript (ES6+, async/await)
-- Fetch API
-- Google Fonts (Plus Jakarta Sans, Noto Sans Ethiopic)
+- Semantic HTML5
+- Pure CSS3 (CSS Custom Properties, CSS Grid, Flexbox, 3D Transforms, Backdrop Blur)
+- Vanilla JavaScript (ES6+, async/await, native Fetch API)
+- Google Fonts (`Plus Jakarta Sans`, `Inter`, `Noto Sans Ethiopic`)
 
 **Completed Objectives:**
-
-1. Developed a responsive, modern HTML5 user interface with branded navigation and hero section.
-2. Connected frontend dynamically to Express REST API endpoints (`/api/opportunities`) using the native Fetch API.
-3. Rendered opportunity cards dynamically from real PostgreSQL records with category badges, deadline chips, and external application links.
-4. Implemented real-time debounced search (300ms) and multi-factor category and discipline filtering.
-5. Built an accessible opportunity details modal displaying full descriptions, eligibility, and direct apply triggers.
-6. Engineered an interactive CRUD management dashboard enabling Create (POST), Edit (PUT), and Delete (DELETE) operations with confirmation dialogs.
-7. Implemented loading skeletons, defensive network error banners, and empty search states.
-8. Prepared technical documentation, submission screenshot guide, and comprehensive README.
+1. Developed responsive Single-Page Application (SPA) following the official Menged deep emerald visual identity.
+2. Enclosed golden compass logo in a circular clipping mask with gold border to eliminate whitespace borders, and implemented an interactive logo lightbox modal.
+3. Implemented a dual-theme engine (Emerald Canvas & Obsidian Night Mode) with both an outside header toggle and a persistent floating theme switcher (`#floating-theme-toggle`), backed by `localStorage` persistence.
+4. Engineered a two-column hero section with staggered 3D floating preview cards and dynamic mouse parallax response.
+5. Built 5 interactive opportunity category navigation cards with SVG vector icons and smooth auto-scroll filtering.
+6. Implemented live opportunity discovery stream connected to Express REST API with real-time **300ms debounced search**, category pills, discipline dropdowns, location filters, and deadline sorting.
+7. Applied dynamic 3D card tilt perspective following cursor movement on desktop viewports.
+8. Built read-only Opportunity Details modal displaying verified criteria, role overview, and direct external application links.
+9. Implemented community opportunity contribution form (`POST /api/opportunities`) with real-time validation and self-dismissing feedback toast alerts.
+10. Engineered defensive offline demonstration fallback (`DEMO_FALLBACK_OPPORTUNITIES`), ensuring seamless functionality even if backend services are offline.
+11. Authored complete frontend technical documentation and evaluation guides.
 
 **Deliverables:**
-- Frontend single-page application (`index.html`).
-- Responsive stylesheets (`css/style.css`).
-- Vanilla JavaScript application logic (`js/app.js`).
-- Complete frontend technical documentation (`documentation/FRONTEND_DOCUMENTATION.md`).
-- Evaluation screenshot capture guide (`screenshots/README.md`).
-- Task 3 README documentation.
+- Single-page application entrypoint (`index.html`).
+- Branded, token-driven stylesheets (`css/style.css`).
+- Modular client-side application controller (`js/app.js`).
+- Golden compass brand asset (`assets/logo.png`).
+- Comprehensive technical documentation (`documentation/FRONTEND_DOCUMENTATION.md`).
+- Task 3 README documentation (`README.md`).
+
+---
+
+### Overall Level 1 Milestone Summary
+
+The **Level 1 (Basic)** milestone for the Codveda Full-Stack Development Internship has been fully completed across all 3 prescribed tasks. The repository represents a fully functioning, decoupled full-stack opportunity discovery platform built with zero external frontend frameworks, high-performance database indexing, defensive error handling, and accessible UI engineering.
