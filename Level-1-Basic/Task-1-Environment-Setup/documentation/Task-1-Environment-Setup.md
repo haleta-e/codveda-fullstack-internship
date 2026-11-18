@@ -65,8 +65,8 @@ The commands returned the installed versions successfully.
 
 **Installed versions:**
 
-- Node.js: [Enter your actual version]
-- npm: [Enter your actual version]
+- Node.js: `v24.18.0`
+- npm: `11.16.0`
 
 ### 3.4 Evidence
 
@@ -122,7 +122,7 @@ git --version
 
 The command returned the installed Git version.
 
-**Installed Git version:** [Enter your actual version]
+**Installed Git version:** `git version 2.55.0.windows.3`
 
 ### 5.3 Git User Configuration
 
@@ -131,8 +131,8 @@ Git was configured with the developer's identity.
 The following commands were used:
 
 ```powershell
-git config --global user.name "Your Name"
-git config --global user.email "your-email@example.com"
+git config --global user.name "haleta-e"
+git config --global user.email "etsegenetamsalu56@gmail.com"
 ```
 
 To verify the configuration:
@@ -142,17 +142,17 @@ git config --global user.name
 git config --global user.email
 ```
 
-**Configured username:** [Enter your Git username]
+**Configured username:** `haleta-e`
 
-**Configured email:** [Enter your configured Git email]
+**Configured email:** `etsegenetamsalu56@gmail.com`
 
 ### 5.4 GitHub Repository
 
 A GitHub repository was created to store and manage the internship tasks.
 
-**Repository name:** haleta-e
+**Repository name:** `codveda-fullstack-internship`
 
-**Repository URL:**(https://github.com/haleta-e)
+**Repository URL:** [https://github.com/haleta-e/codveda-fullstack-internship](https://github.com/haleta-e/codveda-fullstack-internship)
 
 The repository provides online storage for the project files and allows changes to be tracked through Git commits.
 
@@ -198,7 +198,7 @@ Command:
 psql --version
 ```
 
-**Installed PostgreSQL version:** [Enter your actual version]
+**Installed PostgreSQL version:** `psql (PostgreSQL) 17.11`
 
 ### 6.3 PostgreSQL Connection Verification
 

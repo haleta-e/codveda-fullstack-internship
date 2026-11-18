@@ -1,5 +1,9 @@
 # Task 1: Setup Development Environment
 
+> **Codveda Full-Stack Development Internship — Level 1 (Basic)**  
+> **Developer:** Etsegenet Amsalu (Haleta)  
+> **Task Documentation:** [`documentation/Task-1-Environment-Setup.md`](documentation/Task-1-Environment-Setup.md)
+
 ## Overview
 
 This task focuses on preparing a full-stack development environment for building, testing, and managing web applications.
