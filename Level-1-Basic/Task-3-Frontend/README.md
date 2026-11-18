@@ -89,11 +89,17 @@ The design implements the official Menged Design Specification:
 ### 4.8 Section 07: Footer
 - Comprehensive brand description, category links, platform navigation, and copyright.
 
-### 4.9 Opportunity Details Modal
-- Clean overlay displaying full opportunity description, eligibility requirements, field, location, and the official external **"Apply Now"** link.
+### 4.9 Opportunity Details Modal (Read-Only Public Details)
+- Clean, focused dialog displaying the full opportunity overview, verified eligibility criteria, academic discipline, location, and the official external **"Apply Now"** button. Public students discover opportunities without distraction.
 
-### 4.10 Evaluator / Developer CRUD Portal
-- A foldable interactive management panel at the bottom of the page designed for internship evaluation of `POST`, `GET`, `PUT`, and `DELETE` operations connected directly to PostgreSQL.
+### 4.10 Community Opportunity Submission Form
+- Clean submission section allowing students, educators, and organizations to submit verified opportunities for review via `POST /api/opportunities`.
+
+### 4.11 Night Mode / Dark Theme System
+- Built-in theme switcher (`#theme-toggle`) in the navigation bar allowing users to effortlessly switch between Vibrant Emerald and Obsidian Night modes, with preference automatically saved to `localStorage`.
+
+### 4.12 Interactive Logo Lightbox Modal
+- Clicking the circular golden compass brand logo opens an interactive modal viewing the high-resolution identity asset in detail.
 
 ---
 
