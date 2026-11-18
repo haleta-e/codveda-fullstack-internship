@@ -1533,6 +1533,67 @@ h1, h2, h3, h4, h5 {
   background-color: #FEF2F2;
 }
 
+/* Category Quick Select Pills inside Submission Form */
+.form-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-category-pill {
+  padding: 0.45rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--card-border);
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.form-category-pill:hover {
+  border-color: var(--color-vibrant-emerald);
+  transform: translateY(-1px);
+}
+
+.form-category-pill.active {
+  background-color: var(--color-vibrant-emerald);
+  border-color: var(--color-vibrant-emerald);
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+}
+
+/* Select element inside form with custom arrow & visible options */
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.95rem;
+  padding-right: 2.5rem;
+}
+
+select.form-control option {
+  background-color: #0B2B20;
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 0.5rem;
+}
+
+:root:not([data-theme="dark"]) select.form-control option {
+  background-color: #FFFFFF;
+  color: #0F172A;
+}
+
+[data-theme="dark"] select.form-control option {
+  background-color: #0B2B20;
+  color: #FFFFFF;
+}
+
 .field-error {
   display: block;
   font-size: 0.75rem;
@@ -1826,6 +1887,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .toast.toast-success { background-color: var(--color-deep-emerald); border-left: 5px solid var(--color-vibrant-emerald); }
+.toast.toast-warning { background-color: #78350F; border-left: 5px solid #FCD34D; }
 .toast.toast-error { background-color: #991B1B; border-left: 5px solid #FCA5A5; }
 .toast.toast-info { background-color: #1E3A8A; border-left: 5px solid #93C5FD; }
 

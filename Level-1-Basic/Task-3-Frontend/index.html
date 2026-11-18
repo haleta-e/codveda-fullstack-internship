@@ -54,8 +54,8 @@
 
       <!-- Desktop Navigation Menu -->
       <nav class="nav-links" id="nav-links" aria-label="Main Navigation">
-        <a href="#discover" class="nav-link active">Discover</a>
         <a href="#categories" class="nav-link">Categories</a>
+        <a href="#discover" class="nav-link">Discover</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
         <a href="#why-menged" class="nav-link">Why Menged</a>
         <a href="#submit-section" class="nav-link">Submit Opportunity</a>
@@ -579,8 +579,15 @@
 
               <div class="form-group">
                 <label for="form-type" class="form-label">Category <span class="required">*</span></label>
+                <div class="form-category-pills" id="form-category-pills">
+                  <button type="button" class="form-category-pill" data-value="Internships">💼 Internships</button>
+                  <button type="button" class="form-category-pill" data-value="Scholarships">🎓 Scholarships</button>
+                  <button type="button" class="form-category-pill" data-value="Remote jobs">💻 Remote Jobs</button>
+                  <button type="button" class="form-category-pill" data-value="Training programs">📚 Training Programs</button>
+                  <button type="button" class="form-category-pill" data-value="Fellowships">🌐 Fellowships</button>
+                </div>
                 <select id="form-type" class="form-control" required>
-                  <option value="">Select Category...</option>
+                  <option value="">Or choose from dropdown...</option>
                   <option value="Internships">Internships</option>
                   <option value="Scholarships">Scholarships</option>
                   <option value="Remote jobs">Remote jobs</option>

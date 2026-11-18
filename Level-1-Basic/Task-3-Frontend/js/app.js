@@ -152,6 +152,7 @@ function showToast(message, type = 'info') {
 
   let icon = 'ℹ';
   if (type === 'success') icon = '✓';
+  if (type === 'warning') icon = '⚠️';
   if (type === 'error') icon = '✕';
 
   toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
@@ -575,7 +576,10 @@ async function handleFormSubmit(e) {
     isValid = false;
   }
 
-  if (!isValid) return;
+  if (!isValid) {
+    showToast('Please fill in the required fields marked with *', 'warning');
+    return;
+  }
 
   const payload = {
     title,
@@ -590,25 +594,30 @@ async function handleFormSubmit(e) {
   };
 
   const submitBtn = document.getElementById('submit-btn');
-  if (submitBtn) submitBtn.disabled = true;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+  }
 
   try {
     await createOpportunity(payload);
-    showToast('Opportunity submitted successfully! It has been added to the discovery stream.', 'success');
+    showToast('Opportunity submitted successfully! It has been added to Menged.', 'success');
     
-    // Reset form
+    // Reset form back to original clean blank state
     e.target.reset();
+    document.querySelectorAll('.form-category-pill').forEach((p) => p.classList.remove('active'));
+    document.querySelectorAll('.form-control').forEach((el) => el.classList.remove('is-invalid'));
+    document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
+    
+    // Refresh background opportunity stream silently
     await fetchOpportunities();
-
-    // Scroll smoothly to the discovery section to show the new card
-    const discoverSection = document.getElementById('discover');
-    if (discoverSection) {
-      discoverSection.scrollIntoView({ behavior: 'smooth' });
-    }
   } catch (err) {
     showToast(err.message || 'Submission failed. Please check connection.', 'error');
   } finally {
-    if (submitBtn) submitBtn.disabled = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Submit Opportunity for Review</span>';
+    }
   }
 }
 
@@ -740,9 +749,57 @@ function setupEventListeners() {
   if (resetBtn) resetBtn.addEventListener('click', resetFilters);
   if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetFilters);
 
-  // Form submit
+  // Form submit & real-time input error clearing
   const form = document.getElementById('opportunity-form');
-  if (form) form.addEventListener('submit', handleFormSubmit);
+  const formTypeSelect = document.getElementById('form-type');
+  const formCategoryPills = document.querySelectorAll('.form-category-pill');
+
+  // Category quick-select buttons in form
+  formCategoryPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const selectedValue = pill.getAttribute('data-value');
+      formCategoryPills.forEach((p) => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      if (formTypeSelect) {
+        formTypeSelect.value = selectedValue;
+        formTypeSelect.classList.remove('is-invalid');
+        const errSpan = document.getElementById('type-error');
+        if (errSpan) errSpan.textContent = '';
+      }
+    });
+  });
+
+  if (formTypeSelect) {
+    formTypeSelect.addEventListener('change', () => {
+      const val = formTypeSelect.value;
+      formCategoryPills.forEach((pill) => {
+        if (pill.getAttribute('data-value') === val) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+      formTypeSelect.classList.remove('is-invalid');
+      const errSpan = document.getElementById('type-error');
+      if (errSpan) errSpan.textContent = '';
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', handleFormSubmit);
+
+    // Clear field errors as soon as the user types or selects
+    form.querySelectorAll('.form-control').forEach((input) => {
+      const clearError = () => {
+        input.classList.remove('is-invalid');
+        const errSpan = input.parentElement.querySelector('.field-error');
+        if (errSpan) errSpan.textContent = '';
+      };
+      input.addEventListener('input', clearError);
+      input.addEventListener('change', clearError);
+    });
+  }
 
   // Modal close listeners
   const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -765,21 +822,72 @@ function setupEventListeners() {
     }
   });
 
-  // Mobile navigation drawer toggle
+  // Navigation Links & Active State Management
   const mobileToggle = document.getElementById('mobile-toggle');
   const navLinks = document.getElementById('nav-links');
+  const navLinkElements = document.querySelectorAll('.nav-link');
+
+  const setActiveNavLink = (targetHref) => {
+    navLinkElements.forEach((link) => {
+      if (link.getAttribute('href') === targetHref) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  };
+
+  // Mobile navigation drawer toggle
   if (mobileToggle && navLinks) {
     mobileToggle.addEventListener('click', () => {
       const open = navLinks.classList.toggle('open');
       mobileToggle.setAttribute('aria-expanded', open);
     });
-    navLinks.querySelectorAll('.nav-link').forEach((link) => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('open');
-        mobileToggle.setAttribute('aria-expanded', 'false');
-      });
-    });
   }
+
+  // Click handler to instantly switch active nav link
+  navLinkElements.forEach((link) => {
+    link.addEventListener('click', () => {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        setActiveNavLink(href);
+      }
+      if (navLinks) navLinks.classList.remove('open');
+      if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Dynamic Scroll-Spy: update active nav link as sections scroll into view
+  const trackableSections = [
+    document.getElementById('categories'),
+    document.getElementById('discover'),
+    document.getElementById('how-it-works'),
+    document.getElementById('why-menged'),
+    document.getElementById('submit-section'),
+  ].filter(Boolean);
+
+  const updateScrollSpy = () => {
+    const scrollPosition = window.scrollY + 200;
+    let currentId = '';
+
+    for (let i = trackableSections.length - 1; i >= 0; i--) {
+      const sec = trackableSections[i];
+      if (sec && sec.offsetTop <= scrollPosition) {
+        currentId = sec.getAttribute('id');
+        break;
+      }
+    }
+
+    if (currentId) {
+      setActiveNavLink(`#${currentId}`);
+    } else if (window.scrollY < 200) {
+      // Near top of page (hero section)
+      navLinkElements.forEach((link) => link.classList.remove('active'));
+    }
+  };
+
+  // Initial check on page load
+  updateScrollSpy();
 
   // Floating Hero Cards Mouse Parallax
   const heroScene = document.getElementById('hero-3d-scene');
@@ -815,14 +923,15 @@ function setupEventListeners() {
   if (footSign) footSign.addEventListener('click', (e) => { e.preventDefault(); authNotice(); });
   if (footReg) footReg.addEventListener('click', (e) => { e.preventDefault(); authNotice(); });
 
-  // Navbar shadow on scroll
+  // Navbar shadow & Scroll-Spy on scroll
   window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
     if (navbar) {
       if (window.scrollY > 20) navbar.classList.add('scrolled');
       else navbar.classList.remove('scrolled');
     }
-  });
+    updateScrollSpy();
+  }, { passive: true });
 }
 
 // App Initialization
