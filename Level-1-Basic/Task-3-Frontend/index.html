@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Menged (መንገድ) - Opportunity discovery and career management platform for Ethiopian university students and graduates. Discover internships, scholarships, remote tech jobs, bootcamps, and fellowships.">
+  <meta name="description" content="Menged (መንገድ) - Premier Opportunity Discovery and Career Navigation Platform for Ethiopian University Students and Graduates.">
   <title>Menged | Discover Opportunities. Build Your Future.</title>
   
   <!-- Favicon / Brand Logo -->
   <link rel="icon" type="image/png" href="assets/logo.png">
 
-  <!-- Google Web Fonts: Plus Jakarta Sans (Headings), Inter (Body), Noto Sans Ethiopic (Amharic) -->
+  <!-- Google Web Fonts: Plus Jakarta Sans, Inter, Noto Sans Ethiopic -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -21,18 +21,36 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
+  <!-- Logo Lightbox Modal -->
+  <div id="logo-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Brand Logo View">
+    <div class="logo-modal-card">
+      <button id="logo-modal-close" class="modal-close" aria-label="Close image">&times;</button>
+      <div class="logo-circle-container">
+        <img src="assets/logo.png" alt="Menged Golden Compass Emblem" class="logo-full-img">
+      </div>
+      <div class="logo-modal-caption">
+        <h3>MENGED (መንገድ)</h3>
+        <p>The Golden Compass — Guiding Ethiopian Talent Toward Global Opportunities</p>
+      </div>
+    </div>
+  </div>
+
   <!-- =========================================================================
-       NAVIGATION BAR
+       NAVIGATION BAR (With Night Mode Toggle)
        ========================================================================= -->
   <header class="navbar" id="navbar">
     <div class="nav-container">
-      <a href="#home" class="brand">
-        <img src="assets/logo.png" alt="Menged Compass Logo" class="brand-logo-img">
-        <div class="brand-text">
+      <div class="brand-group">
+        <button type="button" class="brand-btn" id="brand-logo-trigger" title="Click to view full brand logo">
+          <div class="brand-logo-badge">
+            <img src="assets/logo.png" alt="Menged Compass Logo" class="brand-logo-img">
+          </div>
+        </button>
+        <a href="#home" class="brand-text-link">
           <span class="brand-title">MENGED</span>
           <span class="brand-amharic">መንገድ</span>
-        </div>
-      </a>
+        </a>
+      </div>
 
       <!-- Desktop Navigation Menu -->
       <nav class="nav-links" id="nav-links" aria-label="Main Navigation">
@@ -40,69 +58,84 @@
         <a href="#categories" class="nav-link">Categories</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
         <a href="#why-menged" class="nav-link">Why Menged</a>
-        <a href="#about" class="nav-link">About</a>
+        <a href="#submit-section" class="nav-link">Submit Opportunity</a>
+        
         <div class="nav-actions">
+          <span id="api-status-pill" class="api-status-pill">
+            <span class="status-pulse"></span>
+            <span id="api-status-text">Live Feed</span>
+          </span>
+
           <button type="button" class="btn btn-ghost btn-sm" id="signin-btn">Sign In</button>
           <a href="#discover" class="btn btn-primary btn-sm">Get Started</a>
         </div>
       </nav>
 
-      <!-- Mobile Navigation Hamburger -->
-      <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </button>
+      <!-- Outside Header Controls (Theme Toggle & Mobile Menu) -->
+      <div class="nav-outside-controls">
+        <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Night Mode" title="Toggle Light / Night Mode">
+          <span class="theme-icon-light">☀️</span>
+          <span class="theme-icon-dark">🌙</span>
+        </button>
+
+        <!-- Mobile Navigation Hamburger -->
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
     </div>
   </header>
 
   <main>
     <!-- =========================================================================
-         SECTION 01: HERO SECTION (Two-Column with 3D Floating Cards)
+         SECTION 01: HERO SECTION & VIBRANT 3D FLOATING CARDS
          ========================================================================= -->
     <section class="hero-section" id="home">
-      <!-- Soft ambient glowing background shapes -->
-      <div class="glow-shape glow-1" aria-hidden="true"></div>
-      <div class="glow-shape glow-2" aria-hidden="true"></div>
+      <!-- Ambient Radiant Background Lighting -->
+      <div class="ambient-glow glow-emerald" aria-hidden="true"></div>
+      <div class="ambient-glow glow-gold" aria-hidden="true"></div>
+      <div class="ambient-glow glow-blue" aria-hidden="true"></div>
 
       <div class="container hero-container">
         <!-- Left Column: Content -->
         <div class="hero-content">
-          <div class="eyebrow-badge">
-            <span class="eyebrow-dot"></span>
+          <div class="eyebrow-chip">
+            <span class="chip-sparkle">✦</span>
             YOUR NEXT CHAPTER STARTS HERE
           </div>
           <h1 class="hero-title">
             Discover opportunities. <br>
-            <span class="hero-highlight">Build your future.</span>
+            <span class="hero-title-gradient">Build your future.</span>
           </h1>
           <p class="hero-description">
-            Your journey toward something greater begins with the right opportunity. Discover verified internships, global scholarships, fellowships, training programs, and remote roles tailored for Ethiopian students and graduates.
+            Your journey toward something greater begins with the right opportunity. Explore verified internships, global scholarships, remote tech roles, fellowships, and training bootcamps built for Ethiopian talent.
           </p>
 
           <div class="hero-buttons">
-            <a href="#discover" class="btn btn-primary btn-lg">
+            <a href="#discover" class="btn btn-primary btn-lg shadow-glow">
               Explore Opportunities
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
                 <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
             </a>
-            <a href="#how-it-works" class="btn btn-secondary btn-lg">
-              Learn About Menged
+            <a href="#submit-section" class="btn btn-secondary btn-lg">
+              Submit an Opportunity
             </a>
           </div>
 
-          <!-- Quick Metrics -->
+          <!-- Quick Metrics Bar -->
           <div class="hero-metrics">
             <div class="metric-item">
               <span class="metric-value">5+</span>
-              <span class="metric-label">Key Categories</span>
+              <span class="metric-label">Key Sectors</span>
             </div>
             <div class="metric-divider"></div>
             <div class="metric-item">
               <span class="metric-value">100%</span>
-              <span class="metric-label">Verified & Free</span>
+              <span class="metric-label">Verified Listings</span>
             </div>
             <div class="metric-divider"></div>
             <div class="metric-item">
@@ -112,61 +145,70 @@
           </div>
         </div>
 
-        <!-- Right Column: 3D Floating Opportunity Cards Composition -->
+        <!-- Right Column: 3D Floating Composition -->
         <div class="hero-visual" id="hero-3d-scene">
-          <div class="floating-cards-wrapper">
+          <div class="cards-3d-stage">
             
             <!-- Card 1: Featured Scholarship (Top Right) -->
-            <div class="floating-card float-card-1" data-speed="1.2">
-              <div class="card-badge-row">
-                <span class="pill-badge pill-scholarship">FEATURED SCHOLARSHIP</span>
-                <span class="pill-deadline">Dec 31</span>
-              </div>
-              <h4 class="float-card-title">Graduate STEM Excellence Scholarship</h4>
-              <p class="float-card-subtitle">Ethiopian Education Initiative</p>
-              <div class="float-card-footer">
-                <span class="status-indicator">Applications Open</span>
-                <a href="#discover" class="float-card-link">Explore &rarr;</a>
+            <div class="vibrant-float-card card-scholarship-vibrant" id="float-card-1" data-speed="1.3">
+              <div class="vibrant-card-glass">
+                <div class="vibrant-top-row">
+                  <span class="vibrant-tag tag-scholarship">🎓 SCHOLARSHIP</span>
+                  <span class="vibrant-badge-gold">Verified</span>
+                </div>
+                <h4 class="vibrant-title">Graduate STEM Excellence Scholarship</h4>
+                <p class="vibrant-org">Ethiopian Education Support Initiative</p>
+                <div class="vibrant-chips">
+                  <span class="v-chip">Fully Funded</span>
+                  <span class="v-chip">Dec 31 Deadline</span>
+                </div>
+                <div class="vibrant-footer">
+                  <span class="v-status-open"><span class="pulse-dot"></span> Applications Open</span>
+                  <a href="#discover" class="v-link">View &rarr;</a>
+                </div>
               </div>
             </div>
 
             <!-- Card 2: Remote Internship (Center Left) -->
-            <div class="floating-card float-card-2" data-speed="0.8">
-              <div class="card-badge-row">
-                <span class="pill-badge pill-internship">REMOTE INTERNSHIP</span>
-                <span class="pill-status-dot">Active</span>
+            <div class="vibrant-float-card card-internship-vibrant" id="float-card-2" data-speed="0.9">
+              <div class="vibrant-card-glass">
+                <div class="vibrant-top-row">
+                  <span class="vibrant-tag tag-internship">💼 INTERNSHIP</span>
+                  <span class="v-chip-remote">Remote</span>
+                </div>
+                <h4 class="vibrant-title">Junior Software Engineering Intern</h4>
+                <p class="vibrant-org">TechEthio Innovations</p>
+                <div class="vibrant-chips">
+                  <span class="v-chip">Software Dev</span>
+                  <span class="v-chip">Paid Role</span>
+                </div>
+                <div class="vibrant-footer">
+                  <span class="v-status-open"><span class="pulse-dot"></span> Actively Recruiting</span>
+                  <a href="#discover" class="v-link">View &rarr;</a>
+                </div>
               </div>
-              <h4 class="float-card-title">Junior Software Engineering Internship</h4>
-              <p class="float-card-subtitle">TechEthio Innovations &bull; Remote</p>
             </div>
 
-            <!-- Card 3: Training Bootcamp (Bottom) -->
-            <div class="floating-card float-card-3" data-speed="1.0">
-              <div class="card-badge-row">
-                <span class="pill-badge pill-training">TRAINING PROGRAM</span>
-                <span class="pill-location">Addis Ababa</span>
+            <!-- Card 3: AI Fellowship & Bootcamp (Bottom Center) -->
+            <div class="vibrant-float-card card-fellowship-vibrant" id="float-card-3" data-speed="1.1">
+              <div class="vibrant-card-glass">
+                <div class="vibrant-top-row">
+                  <span class="vibrant-tag tag-fellowship">🌐 FELLOWSHIP</span>
+                  <span class="v-chip">Cohort 2026</span>
+                </div>
+                <h4 class="vibrant-title">African Leadership & AI Fellowship</h4>
+                <p class="vibrant-org">Future African Innovators Network</p>
+                <div class="vibrant-footer">
+                  <span class="v-status-open"><span class="pulse-dot"></span> Addis Ababa &bull; Hybrid</span>
+                  <a href="#discover" class="v-link">View &rarr;</a>
+                </div>
               </div>
-              <h4 class="float-card-title">Cloud Computing & AI Bootcamp</h4>
-              <p class="float-card-subtitle">Horn of Africa Tech Academy</p>
             </div>
 
           </div>
         </div>
       </div>
     </section>
-
-    <!-- Backend Status Banner (Appears automatically if Express / PostgreSQL is offline) -->
-    <div id="backend-status-banner" class="backend-banner hidden" role="alert">
-      <div class="banner-content">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span id="backend-status-message">Cannot reach backend API at http://localhost:5000. Ensure Express and PostgreSQL are running.</span>
-      </div>
-      <button class="btn btn-sm btn-outline-white" id="retry-connection-btn">Retry Connection</button>
-    </div>
 
     <!-- =========================================================================
          SECTION 02: OPPORTUNITY CATEGORIES
@@ -185,15 +227,15 @@
           <!-- Category 1: Internships -->
           <div class="category-card" data-category="Internships" role="button" tabindex="0">
             <div class="category-icon-box cat-icon-internships">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
               </svg>
             </div>
             <h3 class="category-title">Internships</h3>
-            <p class="category-desc">Practical, real-world industry experience to launch your career.</p>
+            <p class="category-desc">Hands-on, real-world industry experience to launch your career.</p>
             <div class="category-footer">
-              <span class="category-count" id="count-internships">Browse openings</span>
+              <span class="category-count">Browse internships</span>
               <span class="category-arrow">&rarr;</span>
             </div>
           </div>
@@ -201,15 +243,15 @@
           <!-- Category 2: Scholarships -->
           <div class="category-card" data-category="Scholarships" role="button" tabindex="0">
             <div class="category-icon-box cat-icon-scholarships">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
                 <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
               </svg>
             </div>
             <h3 class="category-title">Scholarships</h3>
-            <p class="category-desc">Undergraduate and graduate funding for local and international education.</p>
+            <p class="category-desc">Undergraduate and graduate tuition funding for local and international education.</p>
             <div class="category-footer">
-              <span class="category-count" id="count-scholarships">Browse funding</span>
+              <span class="category-count">Browse funding</span>
               <span class="category-arrow">&rarr;</span>
             </div>
           </div>
@@ -217,16 +259,16 @@
           <!-- Category 3: Remote Jobs -->
           <div class="category-card" data-category="Remote jobs" role="button" tabindex="0">
             <div class="category-icon-box cat-icon-remote">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                 <line x1="8" y1="21" x2="16" y2="21"></line>
                 <line x1="12" y1="17" x2="12" y2="21"></line>
               </svg>
             </div>
             <h3 class="category-title">Remote Jobs</h3>
-            <p class="category-desc">Work with Pan-African and global teams right from Ethiopia.</p>
+            <p class="category-desc">Work with international tech teams from the comfort of Ethiopia.</p>
             <div class="category-footer">
-              <span class="category-count" id="count-remote">Browse roles</span>
+              <span class="category-count">Browse roles</span>
               <span class="category-arrow">&rarr;</span>
             </div>
           </div>
@@ -234,15 +276,15 @@
           <!-- Category 4: Training Programs -->
           <div class="category-card" data-category="Training programs" role="button" tabindex="0">
             <div class="category-icon-box cat-icon-training">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
               </svg>
             </div>
             <h3 class="category-title">Training Programs</h3>
-            <p class="category-desc">Intensive skill-building bootcamps in software, cloud, and AI.</p>
+            <p class="category-desc">Intensive skill-building bootcamps in software engineering, cloud, and AI.</p>
             <div class="category-footer">
-              <span class="category-count" id="count-training">Browse programs</span>
+              <span class="category-count">Browse bootcamps</span>
               <span class="category-arrow">&rarr;</span>
             </div>
           </div>
@@ -250,7 +292,7 @@
           <!-- Category 5: Fellowships -->
           <div class="category-card" data-category="Fellowships" role="button" tabindex="0">
             <div class="category-icon-box cat-icon-fellowships">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="2" y1="12" x2="22" y2="12"></line>
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -259,7 +301,7 @@
             <h3 class="category-title">Fellowships</h3>
             <p class="category-desc">Mentorship, research grants, and leadership development programs.</p>
             <div class="category-footer">
-              <span class="category-count" id="count-fellowships">Browse fellowships</span>
+              <span class="category-count">Browse fellowships</span>
               <span class="category-arrow">&rarr;</span>
             </div>
           </div>
@@ -268,96 +310,99 @@
     </section>
 
     <!-- =========================================================================
-         SECTION 03: OPPORTUNITY EXPLORATION & DISCOVERY
+         SECTION 03: VIBRANT OPPORTUNITY DISCOVERY HUB & SEARCH
          ========================================================================= -->
     <section class="section discover-section" id="discover">
       <div class="container">
-        <div class="section-header">
-          <div>
-            <div class="section-eyebrow">DISCOVER OPPORTUNITIES</div>
-            <h2 class="section-title">Opportunities worth exploring.</h2>
-            <p class="section-subtitle">
-              Explore selected opportunities, filter by your preferences, and take your next career step.
-            </p>
-          </div>
-          <div class="results-meta">
-            <span id="results-count" class="results-badge">Connecting to database...</span>
-          </div>
-        </div>
-
-        <!-- Search Bar and Interactive Filters Card -->
-        <div class="filter-panel">
-          <!-- Keyword Search -->
-          <div class="search-container">
-            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input 
-              type="text" 
-              id="search-input" 
-              class="search-input" 
-              placeholder="Search by opportunity title, organization, or keywords..."
-              aria-label="Search opportunities"
-            >
-            <button id="clear-search-btn" class="clear-search-btn hidden" aria-label="Clear search input">&times;</button>
+        
+        <!-- Search Command Center Hero Banner -->
+        <div class="discovery-header-card">
+          <div class="discovery-title-wrap">
+            <div class="section-eyebrow">LIVE OPPORTUNITY DIRECTORY</div>
+            <h2 class="discovery-main-title">Opportunities Worth Exploring</h2>
+            <p class="discovery-sub-title">Search, filter, and discover verified openings ready for your application.</p>
           </div>
 
-          <!-- Category Pills Bar -->
-          <div class="category-pills-bar" id="category-pills">
-            <button class="pill-filter active" data-category="All">All Opportunities</button>
-            <button class="pill-filter" data-category="Internships">Internships</button>
-            <button class="pill-filter" data-category="Scholarships">Scholarships</button>
-            <button class="pill-filter" data-category="Remote jobs">Remote Jobs</button>
-            <button class="pill-filter" data-category="Training programs">Training Programs</button>
-            <button class="pill-filter" data-category="Fellowships">Fellowships</button>
-          </div>
-
-          <!-- Secondary Filters Row: Field, Location, Sorting -->
-          <div class="secondary-filters-row">
-            <div class="filter-select-wrapper">
-              <label for="field-filter" class="filter-label">Field:</label>
-              <select id="field-filter" class="custom-select">
-                <option value="All">All Disciplines</option>
-                <option value="Software Engineering">Software Engineering</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Web Development">Web Development</option>
-                <option value="Cloud Computing">Cloud Computing</option>
-                <option value="Artificial Intelligence">Artificial Intelligence</option>
-              </select>
-            </div>
-
-            <div class="filter-select-wrapper">
-              <label for="location-filter" class="filter-label">Location:</label>
-              <select id="location-filter" class="custom-select">
-                <option value="All">All Locations</option>
-                <option value="Addis Ababa">Addis Ababa</option>
-                <option value="Remote">Remote</option>
-                <option value="Hawassa">Hawassa</option>
-              </select>
-            </div>
-
-            <div class="filter-select-wrapper">
-              <label for="sort-select" class="filter-label">Sort By:</label>
-              <select id="sort-select" class="custom-select">
-                <option value="newest">Newest First</option>
-                <option value="deadline">Approaching Deadline</option>
-                <option value="title">Alphabetical (A-Z)</option>
-              </select>
-            </div>
-
-            <button id="reset-filters-btn" class="btn btn-secondary btn-sm reset-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <polyline points="23 20 23 14 17 14"></polyline>
-                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+          <!-- Integrated Floating Search Bar -->
+          <div class="search-command-bar">
+            <div class="search-input-wrap">
+              <svg class="search-lens-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              Reset Filters
+              <input 
+                type="text" 
+                id="search-input" 
+                class="search-input-field" 
+                placeholder="Search by role, company (e.g. 'Software', 'Scholarship', 'Internship')..."
+                aria-label="Search opportunities"
+              >
+              <button id="clear-search-btn" class="clear-search-btn hidden" aria-label="Clear search input">&times;</button>
+            </div>
+            <button class="btn btn-search" id="search-action-btn">
+              <span>Find Opportunities</span>
             </button>
           </div>
+
+          <!-- Interactive Category Pills Slider -->
+          <div class="category-pills-slider" id="category-pills">
+            <button class="pill-chip active" data-category="All">🌟 All Categories</button>
+            <button class="pill-chip" data-category="Internships">💼 Internships</button>
+            <button class="pill-chip" data-category="Scholarships">🎓 Scholarships</button>
+            <button class="pill-chip" data-category="Remote jobs">💻 Remote Jobs</button>
+            <button class="pill-chip" data-category="Training programs">📚 Training Programs</button>
+            <button class="pill-chip" data-category="Fellowships">🌐 Fellowships</button>
+          </div>
+
+          <!-- Filter Toolbar (Discipline, Location, Sorting, Count) -->
+          <div class="filter-toolbar">
+            <div class="filter-tools-left">
+              <div class="select-group">
+                <label for="field-filter">Field:</label>
+                <select id="field-filter" class="styled-select">
+                  <option value="All">All Disciplines</option>
+                  <option value="Software Engineering">Software Engineering</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Cloud Computing">Cloud Computing</option>
+                  <option value="Artificial Intelligence">Artificial Intelligence</option>
+                </select>
+              </div>
+
+              <div class="select-group">
+                <label for="location-filter">Location:</label>
+                <select id="location-filter" class="styled-select">
+                  <option value="All">All Locations</option>
+                  <option value="Addis Ababa">Addis Ababa</option>
+                  <option value="Remote">Remote</option>
+                  <option value="Hawassa">Hawassa</option>
+                </select>
+              </div>
+
+              <div class="select-group">
+                <label for="sort-select">Sort By:</label>
+                <select id="sort-select" class="styled-select">
+                  <option value="newest">Newest First</option>
+                  <option value="deadline">Approaching Deadline</option>
+                  <option value="title">Alphabetical (A-Z)</option>
+                </select>
+              </div>
+
+              <button id="reset-filters-btn" class="btn btn-ghost btn-sm reset-filter-btn" title="Reset all filters">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>
+                Reset
+              </button>
+            </div>
+
+            <div class="filter-tools-right">
+              <span id="results-count" class="results-badge-vibrant">Loading opportunities...</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Opportunities Grid Container (Dynamic via REST API) -->
+        <!-- Opportunities Grid Container -->
         <div id="opportunities-grid" class="opportunities-grid" aria-live="polite">
           <!-- Dynamic cards injected via JavaScript -->
         </div>
@@ -376,26 +421,11 @@
           <button id="empty-reset-btn" class="btn btn-primary btn-sm">Clear All Filters</button>
         </div>
 
-        <!-- Error State Container -->
-        <div id="error-state" class="error-state hidden">
-          <div class="error-icon-circle">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-          </div>
-          <h3 class="error-title">Unable to Load Opportunities</h3>
-          <p id="error-description" class="error-subtitle">
-            There was a problem communicating with the Menged REST API server.
-          </p>
-          <button id="error-retry-btn" class="btn btn-primary btn-sm">Retry Request</button>
-        </div>
       </div>
     </section>
 
     <!-- =========================================================================
-         SECTION 04: HOW MENGED WORKS
+         SECTION 04: HOW MENGED WORKS (3 Steps Journey)
          ========================================================================= -->
     <section class="section how-it-works-section" id="how-it-works">
       <div class="container">
@@ -419,7 +449,7 @@
             </div>
             <h3 class="step-title">Discover</h3>
             <p class="step-desc">
-              Explore curated opportunities collected across verified organizations, international universities, and tech companies.
+              Explore opportunities gathered from universities, technology companies, and global foundations.
             </p>
           </div>
 
@@ -476,13 +506,12 @@
               <p class="quote-text">
                 "Menged transforms fragmented announcements into a single, standardized career discovery engine built specifically for ambitious talent."
               </p>
-              <span class="quote-author">&mdash; The Menged Initiative</span>
+              <span class="quote-author">&mdash; The Menged Platform</span>
             </div>
           </div>
 
           <!-- Right: Four Core Benefits -->
           <div class="benefits-grid">
-            <!-- Benefit 1 -->
             <div class="benefit-card">
               <div class="benefit-icon">&#10003;</div>
               <div>
@@ -491,7 +520,6 @@
               </div>
             </div>
 
-            <!-- Benefit 2 -->
             <div class="benefit-card">
               <div class="benefit-icon">&#10003;</div>
               <div>
@@ -500,7 +528,6 @@
               </div>
             </div>
 
-            <!-- Benefit 3 -->
             <div class="benefit-card">
               <div class="benefit-icon">&#10003;</div>
               <div>
@@ -509,7 +536,6 @@
               </div>
             </div>
 
-            <!-- Benefit 4 -->
             <div class="benefit-card">
               <div class="benefit-icon">&#10003;</div>
               <div>
@@ -518,6 +544,95 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SUBMIT AN OPPORTUNITY SECTION
+         (Clean submission for users, graduates, and companies — No Edit/Delete)
+         ========================================================================= -->
+    <section class="section submit-section" id="submit-section">
+      <div class="container">
+        <div class="submit-card-wrapper">
+          <div class="submit-header text-center">
+            <div class="section-eyebrow">CONTRIBUTE TO MENGED</div>
+            <h2 class="section-title">Submit a Verified Opportunity</h2>
+            <p class="section-subtitle">
+              Know of an internship, scholarship, or open role that can help Ethiopian students? Share it with the community below.
+            </p>
+          </div>
+
+          <form id="opportunity-form" class="clean-submit-form" novalidate>
+            <div class="form-group">
+              <label for="form-title" class="form-label">Opportunity Title <span class="required">*</span></label>
+              <input type="text" id="form-title" class="form-control" placeholder="e.g. Junior Backend Developer Internship" required maxlength="200">
+              <span class="field-error" id="title-error"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="form-organization" class="form-label">Organization / Company <span class="required">*</span></label>
+                <input type="text" id="form-organization" class="form-control" placeholder="e.g. Ethio Telecom Labs" required maxlength="200">
+                <span class="field-error" id="organization-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="form-type" class="form-label">Category <span class="required">*</span></label>
+                <select id="form-type" class="form-control" required>
+                  <option value="">Select Category...</option>
+                  <option value="Internships">Internships</option>
+                  <option value="Scholarships">Scholarships</option>
+                  <option value="Remote jobs">Remote jobs</option>
+                  <option value="Training programs">Training programs</option>
+                  <option value="Fellowships">Fellowships</option>
+                </select>
+                <span class="field-error" id="type-error"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="form-field" class="form-label">Discipline / Tech Field</label>
+                <input type="text" id="form-field" class="form-control" placeholder="e.g. Software Engineering" maxlength="100">
+              </div>
+
+              <div class="form-group">
+                <label for="form-location" class="form-label">Location</label>
+                <input type="text" id="form-location" class="form-control" placeholder="e.g. Addis Ababa or Remote" maxlength="150">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="form-deadline" class="form-label">Application Deadline</label>
+                <input type="date" id="form-deadline" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="form-url" class="form-label">Official Application URL</label>
+                <input type="url" id="form-url" class="form-control" placeholder="https://example.com/apply">
+                <span class="field-error" id="url-error"></span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="form-description" class="form-label">Description <span class="required">*</span></label>
+              <textarea id="form-description" class="form-control" rows="3" placeholder="Provide a summary of duties, qualifications, and benefits..." required></textarea>
+              <span class="field-error" id="description-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="form-eligibility" class="form-label">Eligibility Criteria</label>
+              <textarea id="form-eligibility" class="form-control" rows="2" placeholder="e.g. Final-year undergraduate or recent university graduate..."></textarea>
+            </div>
+
+            <div class="form-actions text-center">
+              <button type="submit" id="submit-btn" class="btn btn-primary btn-lg shadow-glow">
+                <span>Submit Opportunity for Review</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </section>
@@ -533,142 +648,8 @@
             Start exploring opportunities today and take the next step in your academic and professional journey.
           </p>
           <div class="cta-buttons">
-            <a href="#discover" class="btn btn-cta-primary btn-lg">Explore Opportunities</a>
-            <button type="button" class="btn btn-cta-secondary btn-lg" id="cta-register-btn">Create Account</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================================================================
-         DEVELOPMENT / EXAMINER CRUD PORTAL (Foldable Demonstration Tool)
-         Per requirement: Demonstration of Task 2 & 3 CRUD without cluttering public UI
-         ========================================================================= -->
-    <section class="section dev-portal-section" id="admin-crud-portal">
-      <div class="container">
-        <div class="dev-portal-toggle-bar">
-          <div class="dev-portal-info">
-            <span class="dev-badge">Level 1 Internship Evaluation Tool</span>
-            <h3 class="dev-title">Interactive API CRUD Management Portal</h3>
-            <p class="dev-subtitle">Demonstrating live Create (POST), Read (GET), Update (PUT), and Delete (DELETE) operations connected to PostgreSQL.</p>
-          </div>
-          <button id="toggle-crud-portal-btn" class="btn btn-secondary btn-sm">
-            <span id="portal-toggle-text">Show CRUD Portal</span> &darr;
-          </button>
-        </div>
-
-        <div id="crud-portal-content" class="crud-portal-content hidden">
-          <div class="manage-grid">
-            <!-- Form Card (Create / Edit) -->
-            <div class="manage-form-card" id="manage-form-section">
-              <div class="form-header">
-                <div>
-                  <h3 id="form-heading" class="form-title">Create New Opportunity</h3>
-                  <p id="form-subheading" class="form-subtitle">Fill in the fields to add a record directly to PostgreSQL.</p>
-                </div>
-                <button id="cancel-edit-btn" class="btn btn-sm btn-secondary hidden">Cancel Edit</button>
-              </div>
-
-              <form id="opportunity-form" novalidate>
-                <input type="hidden" id="opportunity-id">
-
-                <div class="form-group">
-                  <label for="form-title" class="form-label">Opportunity Title <span class="required">*</span></label>
-                  <input type="text" id="form-title" class="form-control" placeholder="e.g. Junior Backend Developer Trainee" required maxlength="200">
-                  <span class="field-error" id="title-error"></span>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="form-organization" class="form-label">Organization <span class="required">*</span></label>
-                    <input type="text" id="form-organization" class="form-control" placeholder="e.g. Ethio Telecom Labs" required maxlength="200">
-                    <span class="field-error" id="organization-error"></span>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="form-type" class="form-label">Category <span class="required">*</span></label>
-                    <select id="form-type" class="form-control" required>
-                      <option value="">Select Category...</option>
-                      <option value="Internships">Internships</option>
-                      <option value="Scholarships">Scholarships</option>
-                      <option value="Remote jobs">Remote jobs</option>
-                      <option value="Training programs">Training programs</option>
-                      <option value="Fellowships">Fellowships</option>
-                    </select>
-                    <span class="field-error" id="type-error"></span>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="form-field" class="form-label">Discipline / Tech Field</label>
-                    <input type="text" id="form-field" class="form-control" placeholder="e.g. Software Engineering" maxlength="100">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="form-location" class="form-label">Location</label>
-                    <input type="text" id="form-location" class="form-control" placeholder="e.g. Addis Ababa or Remote" maxlength="150">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="form-deadline" class="form-label">Deadline</label>
-                    <input type="date" id="form-deadline" class="form-control">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="form-url" class="form-label">Application URL</label>
-                    <input type="url" id="form-url" class="form-control" placeholder="https://example.com/apply">
-                    <span class="field-error" id="url-error"></span>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="form-description" class="form-label">Description <span class="required">*</span></label>
-                  <textarea id="form-description" class="form-control" rows="3" placeholder="Full summary of responsibilities, requirements, and benefits..." required></textarea>
-                  <span class="field-error" id="description-error"></span>
-                </div>
-
-                <div class="form-group">
-                  <label for="form-eligibility" class="form-label">Eligibility Criteria</label>
-                  <textarea id="form-eligibility" class="form-control" rows="2" placeholder="e.g. Final-year undergraduate or recent university graduate..."></textarea>
-                </div>
-
-                <div class="form-actions">
-                  <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
-                    <span id="submit-btn-text">Submit Opportunity</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Database Records Table -->
-            <div class="manage-table-card">
-              <div class="table-header">
-                <h3 class="table-title">PostgreSQL Database Records</h3>
-                <button id="refresh-table-btn" class="btn btn-sm btn-secondary" title="Refresh records from database">
-                  Refresh Table
-                </button>
-              </div>
-
-              <div class="table-responsive">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Title & Organization</th>
-                      <th>Category</th>
-                      <th>Deadline</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="management-table-body">
-                    <!-- Injected via JavaScript -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <a href="#discover" class="btn btn-cta-primary btn-lg shadow-glow">Explore Opportunities</a>
+            <button type="button" class="btn btn-cta-secondary btn-lg" id="cta-register-btn">Create Free Account</button>
           </div>
         </div>
       </div>
@@ -676,7 +657,7 @@
   </main>
 
   <!-- =========================================================================
-       OPPORTUNITY DETAILS MODAL
+       OPPORTUNITY DETAILS MODAL (Read-Only Public Details — No Edit/Delete)
        ========================================================================= -->
   <div id="details-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-card">
@@ -718,39 +699,15 @@
       </div>
 
       <div class="modal-footer">
-        <div class="modal-actions-left">
-          <button id="modal-edit-btn" class="btn btn-sm btn-secondary">Edit in CRUD Portal</button>
-          <button id="modal-delete-btn" class="btn btn-sm btn-danger">Delete</button>
-        </div>
-        <div class="modal-actions-right">
-          <button id="modal-cancel-btn" class="btn btn-secondary">Close</button>
-          <a id="modal-apply-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-            Apply Now
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Delete Confirmation Modal -->
-  <div id="delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-    <div class="modal-card modal-confirm">
-      <div class="modal-header">
-        <h3 id="delete-modal-title" class="delete-modal-heading">Confirm Permanent Deletion</h3>
-        <button id="delete-modal-close" class="modal-close" aria-label="Cancel deletion">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to delete this opportunity? This action permanently removes the record from the PostgreSQL database.</p>
-        <p class="delete-target"><strong id="delete-opportunity-title"></strong></p>
-      </div>
-      <div class="modal-footer">
-        <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
-        <button id="confirm-delete-btn" class="btn btn-danger">Delete Permanently</button>
+        <button id="modal-cancel-btn" class="btn btn-secondary">Close</button>
+        <a id="modal-apply-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary shadow-glow">
+          Apply Now on Official Site
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
       </div>
     </div>
   </div>
@@ -761,15 +718,17 @@
   <footer class="footer">
     <div class="container footer-container">
       <div class="footer-brand-col">
-        <div class="brand">
-          <img src="assets/logo.png" alt="Menged Compass Logo" class="brand-logo-img">
+        <div class="brand-group">
+          <div class="brand-logo-badge">
+            <img src="assets/logo.png" alt="Menged Compass Logo" class="brand-logo-img">
+          </div>
           <div class="brand-text">
             <span class="brand-title brand-title-footer">MENGED</span>
             <span class="brand-amharic">መንገድ</span>
           </div>
         </div>
         <p class="footer-desc">
-          Opportunity discovery and career management platform for Ethiopian university students, graduates, and aspiring professionals.
+          Opportunity discovery and career navigation platform for Ethiopian university students, graduates, and aspiring professionals.
         </p>
         <p class="footer-motto">Discover opportunities. Build your future.</p>
       </div>
@@ -790,15 +749,14 @@
           <a href="#how-it-works">How It Works</a>
           <a href="#why-menged">Why Menged</a>
           <a href="#categories">Categories</a>
-          <a href="#admin-crud-portal">Evaluator Portal</a>
+          <a href="#submit-section">Submit an Opportunity</a>
         </div>
 
         <div class="footer-col">
           <h4>Account</h4>
           <a href="#signin" id="footer-signin-link">Sign In</a>
           <a href="#register" id="footer-register-link">Get Started</a>
-          <a href="http://localhost:5000/api/health" target="_blank" rel="noopener">API Health Check</a>
-          <a href="http://localhost:5000/api/opportunities" target="_blank" rel="noopener">JSON Feed</a>
+          <a href="http://localhost:5000/api/health" target="_blank" rel="noopener">API Status</a>
         </div>
       </div>
     </div>
@@ -811,11 +769,22 @@
           <span class="dot">&bull;</span>
           <a href="#">Terms of Service</a>
           <span class="dot">&bull;</span>
-          <span>Codveda Full-Stack Internship</span>
+          <span>Codveda Full-Stack Track</span>
         </div>
       </div>
     </div>
   </footer>
+
+  <!-- =========================================================================
+       FLOATING THEME SWITCHER (Always Accessible Outside Page Layout)
+       ========================================================================= -->
+  <aside class="floating-theme-switch-container" aria-label="Theme Switcher">
+    <button type="button" class="floating-theme-btn" id="floating-theme-toggle" aria-label="Toggle Night Mode" title="Toggle Light / Night Mode">
+      <span class="floating-theme-icon floating-theme-icon-light">☀️</span>
+      <span class="floating-theme-icon floating-theme-icon-dark">🌙</span>
+      <span class="floating-theme-text" id="floating-theme-text">Night Mode</span>
+    </button>
+  </aside>
 
   <script src="js/app.js"></script>
 </body>
