@@ -1606,6 +1606,22 @@ select.form-control option {
   margin-top: 2rem;
 }
 
+.form-actions-dual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.form-actions-dual .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-width: 180px;
+}
+
 /* =============================================================================
    SECTION 06: CALL TO ACTION (CTA)
    ============================================================================= */
@@ -2032,6 +2048,13 @@ select.form-control option {
 @media (max-width: 480px) {
   .hero-title { font-size: 2.2rem; }
   .footer-nav-grid { grid-template-columns: 1fr; }
+  .form-actions-dual {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+  .form-actions-dual .btn {
+    width: 100%;
+  }
   .modal-footer {
     flex-direction: column-reverse;
     gap: 1rem;

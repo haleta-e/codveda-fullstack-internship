@@ -333,21 +333,30 @@ async function fetchOpportunityById(id) {
   return DEMO_FALLBACK_OPPORTUNITIES.find((x) => x.id === parseInt(id, 10)) || null;
 }
 
+let submissionAbortController = null;
+
 async function createOpportunity(payload) {
+  submissionAbortController = new AbortController();
   try {
     const res = await fetch(`${API_BASE_URL}/opportunities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: submissionAbortController.signal,
     });
     if (res.ok) {
       return await res.json();
     }
-  } catch (_) {
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('Submission was cancelled.');
+    }
     // Demo fallback local append
     const newRecord = { ...payload, id: Date.now(), created_at: new Date().toISOString() };
     DEMO_FALLBACK_OPPORTUNITIES.unshift(newRecord);
     return { success: true, data: newRecord };
+  } finally {
+    submissionAbortController = null;
   }
 }
 
@@ -596,28 +605,78 @@ async function handleFormSubmit(e) {
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
+    submitBtn.innerHTML = `
+      <svg class="spinner-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="2" x2="12" y2="6"></line>
+        <line x1="12" y1="18" x2="12" y2="22"></line>
+        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+        <line x1="2" y1="12" x2="6" y2="12"></line>
+        <line x1="18" y1="12" x2="22" y2="12"></line>
+        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+      </svg>
+      <span>Submitting...</span>
+    `;
   }
 
   try {
     await createOpportunity(payload);
     showToast('Opportunity submitted successfully! It has been added to Menged.', 'success');
-    
-    // Reset form back to original clean blank state
-    e.target.reset();
-    document.querySelectorAll('.form-category-pill').forEach((p) => p.classList.remove('active'));
-    document.querySelectorAll('.form-control').forEach((el) => el.classList.remove('is-invalid'));
-    document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
-    
-    // Refresh background opportunity stream silently
+    resetSubmissionForm(false);
     await fetchOpportunities();
   } catch (err) {
-    showToast(err.message || 'Submission failed. Please check connection.', 'error');
+    if (err.message === 'Submission was cancelled.') {
+      showToast('Submission was cancelled.', 'info');
+    } else {
+      showToast(err.message || 'Submission failed. Please check connection.', 'error');
+    }
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>Submit Opportunity for Review</span>';
+      submitBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 2L11 13"></path>
+          <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+        </svg>
+        <span>Submit Opportunity for Review</span>
+      `;
     }
+  }
+}
+
+/**
+ * Resets the opportunity submission form and clears all input states
+ * If a submission request is currently in progress, it aborts it immediately
+ */
+function resetSubmissionForm(notify = false) {
+  const form = document.getElementById('opportunity-form');
+  const submitBtn = document.getElementById('submit-btn');
+
+  // Cancel any running submission request
+  if (submissionAbortController) {
+    submissionAbortController.abort();
+    submissionAbortController = null;
+  }
+
+  if (form) form.reset();
+  document.querySelectorAll('.form-category-pill').forEach((p) => p.classList.remove('active'));
+  document.querySelectorAll('.form-control').forEach((el) => el.classList.remove('is-invalid'));
+  document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
+
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 2L11 13"></path>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+      </svg>
+      <span>Submit Opportunity for Review</span>
+    `;
+  }
+
+  if (notify) {
+    showToast('Submission cleared. All fields have been reset.', 'info');
   }
 }
 
@@ -788,6 +847,14 @@ function setupEventListeners() {
 
   if (form) {
     form.addEventListener('submit', handleFormSubmit);
+
+    // Cancel / Clear started opportunity submission
+    const cancelBtn = document.getElementById('form-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        resetSubmissionForm(true);
+      });
+    }
 
     // Clear field errors as soon as the user types or selects
     form.querySelectorAll('.form-control').forEach((input) => {
