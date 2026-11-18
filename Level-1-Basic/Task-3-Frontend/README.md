@@ -4,7 +4,9 @@
 > **Level 1 (Basic) — Task 3: Build a Dynamic Frontend with Vanilla JavaScript**  
 > **Platform:** Menged (Opportunity Discovery & Career Management Platform for Ethiopian University Students and Graduates)  
 > **Concept:** *Discover opportunities. Build your future.*  
-> **Developer:** Haleta
+> **Developer:** Etsegenet Amsalu (Haleta)  
+> **System Architecture Documentation:** [`docs/SYSTEM_ARCHITECTURE.md`](../../docs/SYSTEM_ARCHITECTURE.md)  
+> **Product Requirements Specification:** [`docs/PRODUCT_REQUIREMENTS.md`](../../docs/PRODUCT_REQUIREMENTS.md)
 
 ---
 
