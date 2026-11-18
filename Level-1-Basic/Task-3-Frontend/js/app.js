@@ -1,13 +1,88 @@
 /**
  * =============================================================================
- * MENGED (መንገድ) - OFFICIAL APPLICATION SCRIPT
- * Concept: Discover opportunities. Build your future.
- * Level 1: Task 3 - Dynamic Frontend with Vanilla JavaScript
+ * MENGED (መንገድ) - DYNAMIC FRONTEND APPLICATION CONTROLLER
+ * Vanilla JavaScript (ES6+) for Codveda Internship Level 1
+ * Features:
+ *  - Dynamic Opportunity Discovery & Filtering (Category, Field, Location, Search)
+ *  - Night Mode / Dark Theme Toggle with LocalStorage Persistence
+ *  - 3D Floating Hero Parallax & Card Tilt Interactivity
+ *  - Interactive Logo Lightbox Modal
+ *  - Community Opportunity Submission (POST REST API Integration)
+ *  - Seamless Offline Resilience / Demonstration Fallback
  * =============================================================================
  */
 
-// Global API Base URL Configuration
+// REST API Base URL
 const API_BASE_URL = 'http://localhost:5000/api';
+
+// Demonstration Dataset (Ensures the platform is always interactive, even if PostgreSQL/Express is offline)
+const DEMO_FALLBACK_OPPORTUNITIES = [
+  {
+    id: 1,
+    title: 'Junior Software Engineering Internship',
+    organization: 'TechEthio Innovations',
+    type: 'Internships',
+    field: 'Software Engineering',
+    description: 'Hands-on 3-month full-stack and backend internship for graduating computer science students in Ethiopian universities. Build real APIs with Node.js and modern databases.',
+    eligibility: 'Undergraduate students in Computer Science, Software Engineering, or related technical disciplines with basic JavaScript and SQL knowledge.',
+    deadline: '2026-12-31',
+    application_url: 'https://example.com/apply/internship',
+    location: 'Addis Ababa (Hybrid)',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    title: 'Graduate STEM Excellence Scholarship',
+    organization: 'Ethiopian Education Support Initiative',
+    type: 'Scholarships',
+    field: 'Computer Science & AI',
+    description: 'Full tuition coverage and research stipends for high-achieving Ethiopian graduates pursuing advanced master or doctoral degrees in ICT and Engineering.',
+    eligibility: 'Graduated within the last two years with a cumulative GPA of 3.5 or higher from an accredited university in Ethiopia.',
+    deadline: '2026-11-30',
+    application_url: 'https://example.com/apply/scholarship',
+    location: 'International & Local',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    title: 'Junior Frontend Developer (Remote)',
+    organization: 'Global Pan-African Tech Labs',
+    type: 'Remote jobs',
+    field: 'Web Development',
+    description: 'Junior developer position focusing on modern responsive web development, REST APIs, and accessible user interfaces. Work in flexible distributed teams.',
+    eligibility: 'Demonstrated experience in HTML5, CSS3, modern JavaScript, and building responsive websites. Open to residents in Ethiopia.',
+    deadline: '2026-12-15',
+    application_url: 'https://example.com/apply/remote-job',
+    location: 'Remote (Ethiopia)',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 4,
+    title: 'Cloud Computing & DevOps Training Bootcamp',
+    organization: 'Horn of Africa Tech Academy',
+    type: 'Training programs',
+    field: 'Cloud Computing',
+    description: 'Intensive 8-week bootcamp covering Linux systems, Docker, PostgreSQL, CI/CD pipelines, and cloud deployments with mentorship from senior engineers.',
+    eligibility: 'Final-year students or recent graduates with foundational programming interest and dedication to 15 hours per week.',
+    deadline: '2027-01-15',
+    application_url: 'https://example.com/apply/bootcamp',
+    location: 'Hawassa & Online',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 5,
+    title: 'African Tech Leadership & AI Fellowship',
+    organization: 'Future African Innovators Network',
+    type: 'Fellowships',
+    field: 'Artificial Intelligence',
+    description: 'Prestigious 6-month fellowship offering project grants, AI research mentorship, and leadership seminars tackling local community challenges in Ethiopia.',
+    eligibility: 'Young technology professionals, researchers, and innovators passionate about leveraging machine learning and data science.',
+    deadline: '2027-02-28',
+    application_url: 'https://example.com/apply/fellowship',
+    location: 'Addis Ababa, Ethiopia',
+    created_at: new Date().toISOString(),
+  },
+];
 
 // Application State Model
 const state = {
@@ -18,20 +93,14 @@ const state = {
   activeLocation: 'All',
   activeSort: 'newest',
   searchQuery: '',
-  isEditing: false,
-  editingId: null,
-  pendingDeleteId: null,
-  isBackendOnline: true,
+  isBackendOnline: false,
   searchDebounceTimer: null,
 };
 
 // =============================================================================
-// UTILITY & SANITIZATION HELPERS
+// UTILITY HELPERS & SANITIZATION
 // =============================================================================
 
-/**
- * Sanitize strings to prevent XSS attacks when rendering dynamic HTML
- */
 function escapeHtml(str) {
   if (!str && str !== 0) return '';
   return String(str)
@@ -42,11 +111,8 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Format ISO date string into readable format (e.g. Dec 31, 2026)
- */
 function formatDate(dateString) {
-  if (!dateString) return 'Rolling Basis';
+  if (!dateString) return 'Rolling Applications';
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
@@ -60,9 +126,6 @@ function formatDate(dateString) {
   }
 }
 
-/**
- * Map category type to badge CSS class
- */
 function getCategoryPillClass(type) {
   switch (type) {
     case 'Internships':
@@ -80,9 +143,6 @@ function getCategoryPillClass(type) {
   }
 }
 
-/**
- * Toast notification system
- */
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -106,199 +166,193 @@ function showToast(message, type = 'info') {
 }
 
 // =============================================================================
-// REST API INTEGRATION (Fetch API & async/await)
+// NIGHT MODE / THEME CONTROLLER
 // =============================================================================
 
-/**
- * Check if the Express backend is online
- */
+function initNightMode() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const floatingToggleBtn = document.getElementById('floating-theme-toggle');
+  const floatingText = document.getElementById('floating-theme-text');
+  
+  // Check persisted preference or default to dark
+  const savedTheme = localStorage.getItem('menged-theme') || 'dark';
+  applyTheme(savedTheme);
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('menged-theme', newTheme);
+    showToast(`Switched to ${newTheme === 'dark' ? 'Night' : 'Light'} Mode`, 'info');
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', toggleTheme);
+  }
+
+  if (floatingToggleBtn) {
+    floatingToggleBtn.addEventListener('click', toggleTheme);
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+
+    if (floatingText) {
+      floatingText.textContent = theme === 'dark' ? 'Light Mode' : 'Night Mode';
+    }
+
+    if (themeToggleBtn) {
+      themeToggleBtn.setAttribute('title', theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Night Mode');
+    }
+
+    if (floatingToggleBtn) {
+      floatingToggleBtn.setAttribute('title', theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Night Mode');
+    }
+  }
+}
+
+// =============================================================================
+// REST API INTEGRATION WITH RESILIENT FALLBACK
+// =============================================================================
+
 async function checkBackendHealth() {
-  const banner = document.getElementById('backend-status-banner');
+  const pill = document.getElementById('api-status-pill');
+  const pillText = document.getElementById('api-status-text');
+
   try {
-    const res = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`${API_BASE_URL}/health`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (res.ok) {
       state.isBackendOnline = true;
-      if (banner) banner.classList.add('hidden');
+      if (pill) {
+        pill.className = 'api-status-pill';
+        pillText.textContent = 'Live PostgreSQL';
+      }
       return true;
-    } else {
-      throw new Error(`Health response ${res.status}`);
     }
   } catch (_) {
     state.isBackendOnline = false;
-    if (banner) banner.classList.remove('hidden');
+    if (pill) {
+      pill.className = 'api-status-pill offline';
+      pillText.textContent = 'Demonstration Mode';
+    }
     return false;
   }
 }
 
-/**
- * Fetch opportunity records from REST API
- */
 async function fetchOpportunities() {
-  renderLoadingState();
-  hideEmptyAndErrorStates();
-
   try {
     const queryParams = new URLSearchParams();
+    if (state.activeCategory && state.activeCategory !== 'All') queryParams.append('type', state.activeCategory);
+    if (state.activeField && state.activeField !== 'All') queryParams.append('field', state.activeField);
+    if (state.searchQuery && state.searchQuery.trim().length > 0) queryParams.append('search', state.searchQuery.trim());
 
-    if (state.activeCategory && state.activeCategory !== 'All') {
-      queryParams.append('type', state.activeCategory);
+    const url = `${API_BASE_URL}/opportunities${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+    let rawList = [];
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const json = await res.json();
+        rawList = json.data || [];
+        state.isBackendOnline = true;
+      } else {
+        throw new Error('API offline');
+      }
+    } catch (_) {
+      // Backend offline fallback - use local demonstration catalog so platform is always functional
+      state.isBackendOnline = false;
+      rawList = [...DEMO_FALLBACK_OPPORTUNITIES];
+
+      // Filter locally
+      if (state.activeCategory && state.activeCategory !== 'All') {
+        rawList = rawList.filter((item) => item.type === state.activeCategory);
+      }
+      if (state.activeField && state.activeField !== 'All') {
+        rawList = rawList.filter((item) => item.field && item.field.toLowerCase().includes(state.activeField.toLowerCase()));
+      }
+      if (state.searchQuery && state.searchQuery.trim().length > 0) {
+        const q = state.searchQuery.toLowerCase();
+        rawList = rawList.filter(
+          (item) =>
+            item.title.toLowerCase().includes(q) ||
+            item.organization.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q)
+        );
+      }
     }
 
-    if (state.activeField && state.activeField !== 'All') {
-      queryParams.append('field', state.activeField);
-    }
-
-    if (state.searchQuery && state.searchQuery.trim().length > 0) {
-      queryParams.append('search', state.searchQuery.trim());
-    }
-
-    const url = `${API_BASE_URL}/opportunities${
-      queryParams.toString() ? '?' + queryParams.toString() : ''
-    }`;
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.message || `API error (${response.status})`);
-    }
-
-    const json = await response.json();
-    let opportunities = json.data || [];
-
-    // Client-side Location filter if selected
+    // Client-side Location Filter
     if (state.activeLocation && state.activeLocation !== 'All') {
-      opportunities = opportunities.filter((item) => {
-        if (!item.location) return false;
-        return item.location.toLowerCase().includes(state.activeLocation.toLowerCase());
-      });
+      rawList = rawList.filter((item) => item.location && item.location.toLowerCase().includes(state.activeLocation.toLowerCase()));
     }
 
     // Client-side Sorting
     if (state.activeSort === 'deadline') {
-      opportunities.sort((a, b) => {
+      rawList.sort((a, b) => {
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
         return new Date(a.deadline) - new Date(b.deadline);
       });
     } else if (state.activeSort === 'title') {
-      opportunities.sort((a, b) => a.title.localeCompare(b.title));
+      rawList.sort((a, b) => a.title.localeCompare(b.title));
     } else {
-      // Newest first by default
-      opportunities.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      rawList.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     }
 
-    state.opportunities = opportunities;
-    state.filteredOpportunities = opportunities;
+    state.opportunities = rawList;
+    state.filteredOpportunities = rawList;
 
     renderOpportunities(state.filteredOpportunities);
-    renderManagementTable(state.opportunities);
     updateResultsCount(state.filteredOpportunities.length);
-
-    const banner = document.getElementById('backend-status-banner');
-    if (banner) banner.classList.add('hidden');
-    state.isBackendOnline = true;
-  } catch (error) {
-    console.error('Error connecting to Menged API:', error);
-    renderErrorState(error.message);
-    const banner = document.getElementById('backend-status-banner');
-    if (banner) banner.classList.remove('hidden');
-    state.isBackendOnline = false;
+    checkBackendHealth();
+  } catch (err) {
+    console.error('Error fetching:', err);
+    renderOpportunities(DEMO_FALLBACK_OPPORTUNITIES);
   }
 }
 
-/**
- * Fetch a single opportunity by ID
- */
 async function fetchOpportunityById(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/opportunities/${id}`);
-    if (!res.ok) throw new Error(`Could not load opportunity #${id}`);
-    const result = await res.json();
-    return result.data;
-  } catch (err) {
-    showToast(err.message, 'error');
-    return null;
+    if (res.ok) {
+      const result = await res.json();
+      return result.data;
+    }
+  } catch (_) {
+    // Fallback
   }
+  return DEMO_FALLBACK_OPPORTUNITIES.find((x) => x.id === parseInt(id, 10)) || null;
 }
 
-/**
- * Create opportunity via POST /api/opportunities
- */
 async function createOpportunity(payload) {
-  const res = await fetch(`${API_BASE_URL}/opportunities`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = data.errors ? data.errors.join(' ') : data.message || 'Creation failed';
-    throw new Error(msg);
+  try {
+    const res = await fetch(`${API_BASE_URL}/opportunities`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (_) {
+    // Demo fallback local append
+    const newRecord = { ...payload, id: Date.now(), created_at: new Date().toISOString() };
+    DEMO_FALLBACK_OPPORTUNITIES.unshift(newRecord);
+    return { success: true, data: newRecord };
   }
-  return data;
-}
-
-/**
- * Update opportunity via PUT /api/opportunities/:id
- */
-async function updateOpportunity(id, payload) {
-  const res = await fetch(`${API_BASE_URL}/opportunities/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = data.errors ? data.errors.join(' ') : data.message || 'Update failed';
-    throw new Error(msg);
-  }
-  return data;
-}
-
-/**
- * Delete opportunity via DELETE /api/opportunities/:id
- */
-async function deleteOpportunity(id) {
-  const res = await fetch(`${API_BASE_URL}/opportunities/${id}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok && res.status !== 204) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.message || `Failed to delete opportunity #${id}`);
-  }
-  return true;
 }
 
 // =============================================================================
 // DOM RENDERING
 // =============================================================================
-
-function renderLoadingState() {
-  const grid = document.getElementById('opportunities-grid');
-  if (!grid) return;
-  grid.innerHTML = Array(6)
-    .fill(0)
-    .map(
-      () => `
-      <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton-shimmer" style="height: 22px; width: 100px; border-radius: 9999px;"></div>
-        <div class="skeleton-shimmer" style="height: 24px; width: 85%;"></div>
-        <div class="skeleton-shimmer" style="height: 14px; width: 50%;"></div>
-        <div class="skeleton-shimmer" style="height: 12px; width: 100%;"></div>
-        <div class="skeleton-shimmer" style="height: 12px; width: 80%;"></div>
-      </div>
-    `
-    )
-    .join('');
-}
-
-function hideEmptyAndErrorStates() {
-  const empty = document.getElementById('empty-state');
-  const error = document.getElementById('error-state');
-  if (empty) empty.classList.add('hidden');
-  if (error) error.classList.add('hidden');
-}
 
 function renderOpportunities(opportunities) {
   const grid = document.getElementById('opportunities-grid');
@@ -369,15 +423,11 @@ function renderOpportunities(opportunities) {
     });
   });
 
-  // Attach 3D tilt effect on hover for opportunity cards
+  // Attach 3D interactive tilt
   attachCard3DTilt();
 }
 
-/**
- * 3D Card Tilt Interaction
- */
 function attachCard3DTilt() {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (window.innerWidth < 768) return;
 
   const cards = document.querySelectorAll('.opportunity-card');
@@ -388,10 +438,10 @@ function attachCard3DTilt() {
       const y = e.clientY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -4;
-      const rotateY = ((x - centerX) / centerX) * 4;
+      const rotateX = ((y - centerY) / centerY) * -5;
+      const rotateY = ((x - centerX) / centerX) * 5;
 
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
     });
 
     card.addEventListener('mouseleave', () => {
@@ -400,73 +450,14 @@ function attachCard3DTilt() {
   });
 }
 
-function renderErrorState(message) {
-  const grid = document.getElementById('opportunities-grid');
-  const error = document.getElementById('error-state');
-  const desc = document.getElementById('error-description');
-  if (grid) grid.innerHTML = '';
-  if (desc) {
-    desc.textContent =
-      message || 'Unable to connect to the Menged REST API server. Ensure Express and PostgreSQL are running.';
-  }
-  if (error) error.classList.remove('hidden');
-}
-
 function updateResultsCount(count) {
   const badge = document.getElementById('results-count');
   if (!badge) return;
-  badge.textContent = count === 1 ? '1 opportunity found' : `${count} opportunities found`;
-}
-
-function renderManagementTable(opportunities) {
-  const tbody = document.getElementById('management-table-body');
-  if (!tbody) return;
-
-  if (!opportunities || opportunities.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--color-muted-grey); padding: 2rem;">No opportunity records in PostgreSQL database.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = opportunities
-    .map(
-      (item) => `
-    <tr>
-      <td><strong>#${item.id}</strong></td>
-      <td>
-        <div class="table-title-cell">${escapeHtml(item.title)}</div>
-        <div class="table-org-cell">${escapeHtml(item.organization)}</div>
-      </td>
-      <td><span class="pill-badge ${getCategoryPillClass(item.type)}">${escapeHtml(item.type)}</span></td>
-      <td>${escapeHtml(formatDate(item.deadline))}</td>
-      <td>
-        <div class="table-actions">
-          <button class="btn btn-sm btn-secondary edit-table-btn" data-id="${item.id}">Edit</button>
-          <button class="btn btn-sm btn-danger delete-table-btn" data-id="${item.id}" data-title="${escapeHtml(item.title)}">Delete</button>
-        </div>
-      </td>
-    </tr>
-  `
-    )
-    .join('');
-
-  tbody.querySelectorAll('.edit-table-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-id');
-      loadOpportunityIntoForm(id);
-    });
-  });
-
-  tbody.querySelectorAll('.delete-table-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-id');
-      const title = e.currentTarget.getAttribute('data-title');
-      openDeleteConfirmation(id, title);
-    });
-  });
+  badge.textContent = count === 1 ? '1 Opportunity Found' : `${count} Opportunities Available`;
 }
 
 // =============================================================================
-// MODAL CONTROLLERS
+// MODAL CONTROLLERS (Details & Logo Lightbox)
 // =============================================================================
 
 async function openDetailsModal(id) {
@@ -484,41 +475,34 @@ async function openDetailsModal(id) {
   document.getElementById('modal-description').textContent = item.description;
 
   const catBadge = document.getElementById('modal-category');
-  catBadge.textContent = item.type;
-  catBadge.className = `pill-badge ${getCategoryPillClass(item.type)}`;
+  if (catBadge) {
+    catBadge.textContent = item.type;
+    catBadge.className = `pill-badge ${getCategoryPillClass(item.type)}`;
+  }
 
   const deadlineBadge = document.getElementById('modal-deadline-badge');
-  deadlineBadge.textContent = item.deadline ? `Deadline: ${formatDate(item.deadline)}` : 'Rolling Applications';
+  if (deadlineBadge) {
+    deadlineBadge.textContent = item.deadline ? `Deadline: ${formatDate(item.deadline)}` : 'Rolling Applications';
+  }
 
   const eligSection = document.getElementById('modal-eligibility-section');
   const eligText = document.getElementById('modal-eligibility');
   if (item.eligibility && item.eligibility.trim().length > 0) {
-    eligSection.classList.remove('hidden');
-    eligText.textContent = item.eligibility;
+    eligSection && eligSection.classList.remove('hidden');
+    eligText && (eligText.textContent = item.eligibility);
   } else {
-    eligSection.classList.add('hidden');
+    eligSection && eligSection.classList.add('hidden');
   }
 
   const applyLink = document.getElementById('modal-apply-link');
-  if (item.application_url) {
-    applyLink.href = item.application_url;
-    applyLink.classList.remove('hidden');
-  } else {
-    applyLink.classList.add('hidden');
+  if (applyLink) {
+    if (item.application_url) {
+      applyLink.href = item.application_url;
+      applyLink.classList.remove('hidden');
+    } else {
+      applyLink.classList.add('hidden');
+    }
   }
-
-  // Edit / Delete in modal
-  document.getElementById('modal-edit-btn').onclick = () => {
-    closeDetailsModal();
-    const portal = document.getElementById('crud-portal-content');
-    if (portal) portal.classList.remove('hidden');
-    loadOpportunityIntoForm(item.id);
-  };
-
-  document.getElementById('modal-delete-btn').onclick = () => {
-    closeDetailsModal();
-    openDeleteConfirmation(item.id, item.title);
-  };
 
   modal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
@@ -532,20 +516,17 @@ function closeDetailsModal() {
   }
 }
 
-function openDeleteConfirmation(id, title) {
-  state.pendingDeleteId = id;
-  const modal = document.getElementById('delete-modal');
-  const target = document.getElementById('delete-opportunity-title');
-  if (target) target.textContent = title || `Opportunity #${id}`;
+// Logo Modal Lightbox
+function openLogoModal() {
+  const modal = document.getElementById('logo-modal');
   if (modal) {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
 }
 
-function closeDeleteConfirmation() {
-  state.pendingDeleteId = null;
-  const modal = document.getElementById('delete-modal');
+function closeLogoModal() {
+  const modal = document.getElementById('logo-modal');
   if (modal) {
     modal.classList.add('hidden');
     document.body.style.overflow = '';
@@ -553,79 +534,43 @@ function closeDeleteConfirmation() {
 }
 
 // =============================================================================
-// CRUD FORM HANDLERS
+// SUBMISSION FORM HANDLER
 // =============================================================================
-
-async function loadOpportunityIntoForm(id) {
-  const item = await fetchOpportunityById(id);
-  if (!item) return;
-
-  state.isEditing = true;
-  state.editingId = item.id;
-
-  document.getElementById('opportunity-id').value = item.id;
-  document.getElementById('form-title').value = item.title || '';
-  document.getElementById('form-organization').value = item.organization || '';
-  document.getElementById('form-type').value = item.type || '';
-  document.getElementById('form-field').value = item.field || '';
-  document.getElementById('form-location').value = item.location || '';
-  document.getElementById('form-deadline').value = item.deadline ? item.deadline.substring(0, 10) : '';
-  document.getElementById('form-url').value = item.application_url || '';
-  document.getElementById('form-description').value = item.description || '';
-  document.getElementById('form-eligibility').value = item.eligibility || '';
-
-  document.getElementById('form-heading').textContent = `Edit Opportunity #${item.id}`;
-  document.getElementById('form-subheading').textContent = 'Modify opportunity details and update PostgreSQL.';
-  document.getElementById('submit-btn-text').textContent = 'Update Opportunity';
-  document.getElementById('cancel-edit-btn').classList.remove('hidden');
-
-  const formSec = document.getElementById('manage-form-section');
-  if (formSec) formSec.scrollIntoView({ behavior: 'smooth' });
-}
-
-function resetFormToCreate() {
-  state.isEditing = false;
-  state.editingId = null;
-
-  const form = document.getElementById('opportunity-form');
-  if (form) form.reset();
-
-  document.getElementById('opportunity-id').value = '';
-  document.getElementById('form-heading').textContent = 'Create New Opportunity';
-  document.getElementById('form-subheading').textContent = 'Fill in the fields to add a record directly to PostgreSQL.';
-  document.getElementById('submit-btn-text').textContent = 'Submit Opportunity';
-  document.getElementById('cancel-edit-btn').classList.add('hidden');
-
-  document.querySelectorAll('.form-control').forEach((el) => el.classList.remove('is-invalid'));
-  document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
-}
 
 async function handleFormSubmit(e) {
   e.preventDefault();
 
-  const title = document.getElementById('form-title').value.trim();
-  const organization = document.getElementById('form-organization').value.trim();
-  const type = document.getElementById('form-type').value;
-  const description = document.getElementById('form-description').value.trim();
+  const titleInput = document.getElementById('form-title');
+  const orgInput = document.getElementById('form-organization');
+  const typeSelect = document.getElementById('form-type');
+  const descInput = document.getElementById('form-description');
+
+  const title = titleInput.value.trim();
+  const organization = orgInput.value.trim();
+  const type = typeSelect.value;
+  const description = descInput.value.trim();
 
   let isValid = true;
+  document.querySelectorAll('.form-control').forEach((el) => el.classList.remove('is-invalid'));
+  document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
+
   if (!title) {
-    document.getElementById('form-title').classList.add('is-invalid');
+    titleInput.classList.add('is-invalid');
     document.getElementById('title-error').textContent = 'Title is required.';
     isValid = false;
   }
   if (!organization) {
-    document.getElementById('form-organization').classList.add('is-invalid');
+    orgInput.classList.add('is-invalid');
     document.getElementById('organization-error').textContent = 'Organization is required.';
     isValid = false;
   }
   if (!type) {
-    document.getElementById('form-type').classList.add('is-invalid');
+    typeSelect.classList.add('is-invalid');
     document.getElementById('type-error').textContent = 'Please select a category.';
     isValid = false;
   }
   if (!description) {
-    document.getElementById('form-description').classList.add('is-invalid');
+    descInput.classList.add('is-invalid');
     document.getElementById('description-error').textContent = 'Description is required.';
     isValid = false;
   }
@@ -645,22 +590,25 @@ async function handleFormSubmit(e) {
   };
 
   const submitBtn = document.getElementById('submit-btn');
-  submitBtn.disabled = true;
+  if (submitBtn) submitBtn.disabled = true;
 
   try {
-    if (state.isEditing && state.editingId) {
-      await updateOpportunity(state.editingId, payload);
-      showToast('Opportunity updated successfully in database!', 'success');
-    } else {
-      await createOpportunity(payload);
-      showToast('New opportunity created in PostgreSQL!', 'success');
-    }
-    resetFormToCreate();
+    await createOpportunity(payload);
+    showToast('Opportunity submitted successfully! It has been added to the discovery stream.', 'success');
+    
+    // Reset form
+    e.target.reset();
     await fetchOpportunities();
+
+    // Scroll smoothly to the discovery section to show the new card
+    const discoverSection = document.getElementById('discover');
+    if (discoverSection) {
+      discoverSection.scrollIntoView({ behavior: 'smooth' });
+    }
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Submission failed. Please check connection.', 'error');
   } finally {
-    submitBtn.disabled = false;
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 
@@ -669,9 +617,16 @@ async function handleFormSubmit(e) {
 // =============================================================================
 
 function setupEventListeners() {
-  // Real-time debounced search
+  // Logo Modal Lightbox Click Trigger
+  const logoTrigger = document.getElementById('brand-logo-trigger');
+  const logoClose = document.getElementById('logo-modal-close');
+  if (logoTrigger) logoTrigger.addEventListener('click', openLogoModal);
+  if (logoClose) logoClose.addEventListener('click', closeLogoModal);
+
+  // Search Input with 300ms Debounce
   const searchInput = document.getElementById('search-input');
   const clearSearchBtn = document.getElementById('clear-search-btn');
+  const searchActionBtn = document.getElementById('search-action-btn');
 
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -680,6 +635,7 @@ function setupEventListeners() {
         if (state.searchQuery.length > 0) clearSearchBtn.classList.remove('hidden');
         else clearSearchBtn.classList.add('hidden');
       }
+
       clearTimeout(state.searchDebounceTimer);
       state.searchDebounceTimer = setTimeout(() => {
         fetchOpportunities();
@@ -689,17 +645,25 @@ function setupEventListeners() {
 
   if (clearSearchBtn) {
     clearSearchBtn.addEventListener('click', () => {
-      searchInput.value = '';
+      if (searchInput) searchInput.value = '';
       state.searchQuery = '';
       clearSearchBtn.classList.add('hidden');
       fetchOpportunities();
     });
   }
 
+  if (searchActionBtn) {
+    searchActionBtn.addEventListener('click', () => {
+      fetchOpportunities();
+      const disc = document.getElementById('discover');
+      if (disc) disc.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
   // Category Filter Pills
-  document.querySelectorAll('.pill-filter').forEach((pill) => {
+  document.querySelectorAll('.pill-chip').forEach((pill) => {
     pill.addEventListener('click', (e) => {
-      document.querySelectorAll('.pill-filter').forEach((p) => p.classList.remove('active'));
+      document.querySelectorAll('.pill-chip').forEach((p) => p.classList.remove('active'));
       e.currentTarget.classList.add('active');
       state.activeCategory = e.currentTarget.getAttribute('data-category');
       fetchOpportunities();
@@ -712,8 +676,7 @@ function setupEventListeners() {
       const cat = card.getAttribute('data-category');
       state.activeCategory = cat;
 
-      // Update active pill in discovery section
-      document.querySelectorAll('.pill-filter').forEach((pill) => {
+      document.querySelectorAll('.pill-chip').forEach((pill) => {
         if (pill.getAttribute('data-category') === cat) pill.classList.add('active');
         else pill.classList.remove('active');
       });
@@ -764,7 +727,7 @@ function setupEventListeners() {
     if (locationFilter) locationFilter.value = 'All';
     if (sortSelect) sortSelect.value = 'newest';
 
-    document.querySelectorAll('.pill-filter').forEach((p) => {
+    document.querySelectorAll('.pill-chip').forEach((p) => {
       if (p.getAttribute('data-category') === 'All') p.classList.add('active');
       else p.classList.remove('active');
     });
@@ -777,54 +740,11 @@ function setupEventListeners() {
   if (resetBtn) resetBtn.addEventListener('click', resetFilters);
   if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetFilters);
 
-  // Evaluator CRUD Portal Toggle
-  const toggleCrudBtn = document.getElementById('toggle-crud-portal-btn');
-  const crudPortal = document.getElementById('crud-portal-content');
-  const toggleText = document.getElementById('portal-toggle-text');
-
-  if (toggleCrudBtn && crudPortal) {
-    toggleCrudBtn.addEventListener('click', () => {
-      const isHidden = crudPortal.classList.toggle('hidden');
-      toggleText.textContent = isHidden ? 'Show CRUD Portal' : 'Hide CRUD Portal';
-      if (!isHidden) {
-        crudPortal.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  }
-
-  // Form submit & cancel
+  // Form submit
   const form = document.getElementById('opportunity-form');
   if (form) form.addEventListener('submit', handleFormSubmit);
 
-  const cancelEditBtn = document.getElementById('cancel-edit-btn');
-  if (cancelEditBtn) cancelEditBtn.addEventListener('click', resetFormToCreate);
-
-  // Delete modal buttons
-  const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-  const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-  const deleteModalClose = document.getElementById('delete-modal-close');
-
-  if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', async () => {
-      if (!state.pendingDeleteId) return;
-      try {
-        confirmDeleteBtn.disabled = true;
-        await deleteOpportunity(state.pendingDeleteId);
-        showToast('Opportunity permanently removed from database.', 'success');
-        closeDeleteConfirmation();
-        await fetchOpportunities();
-      } catch (err) {
-        showToast(err.message, 'error');
-      } finally {
-        confirmDeleteBtn.disabled = false;
-      }
-    });
-  }
-
-  if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteConfirmation);
-  if (deleteModalClose) deleteModalClose.addEventListener('click', closeDeleteConfirmation);
-
-  // Details Modal close
+  // Modal close listeners
   const modalCloseBtn = document.getElementById('modal-close-btn');
   const modalCancelBtn = document.getElementById('modal-cancel-btn');
   const detailsModal = document.getElementById('details-modal');
@@ -834,27 +754,18 @@ function setupEventListeners() {
 
   window.addEventListener('click', (e) => {
     if (e.target === detailsModal) closeDetailsModal();
-    const delModal = document.getElementById('delete-modal');
-    if (e.target === delModal) closeDeleteConfirmation();
+    const logoModal = document.getElementById('logo-modal');
+    if (e.target === logoModal) closeLogoModal();
   });
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDetailsModal();
-      closeDeleteConfirmation();
+      closeLogoModal();
     }
   });
 
-  // Retries
-  const retryBtn = document.getElementById('retry-connection-btn');
-  const errorRetryBtn = document.getElementById('error-retry-btn');
-  if (retryBtn) retryBtn.addEventListener('click', fetchOpportunities);
-  if (errorRetryBtn) errorRetryBtn.addEventListener('click', fetchOpportunities);
-
-  const refreshTableBtn = document.getElementById('refresh-table-btn');
-  if (refreshTableBtn) refreshTableBtn.addEventListener('click', fetchOpportunities);
-
-  // Mobile navigation
+  // Mobile navigation drawer toggle
   const mobileToggle = document.getElementById('mobile-toggle');
   const navLinks = document.getElementById('nav-links');
   if (mobileToggle && navLinks) {
@@ -870,39 +781,39 @@ function setupEventListeners() {
     });
   }
 
-  // Visual signin / register entry points
-  const showAuthNotice = () => {
-    showToast('Personal Workspace & Authentication will arrive in Level 2. Explore all opportunities freely now!', 'info');
-  };
-  const signinBtn = document.getElementById('signin-btn');
-  const ctaRegisterBtn = document.getElementById('cta-register-btn');
-  const footerSignin = document.getElementById('footer-signin-link');
-  const footerRegister = document.getElementById('footer-register-link');
-  if (signinBtn) signinBtn.addEventListener('click', showAuthNotice);
-  if (ctaRegisterBtn) ctaRegisterBtn.addEventListener('click', showAuthNotice);
-  if (footerSignin) footerSignin.addEventListener('click', (e) => { e.preventDefault(); showAuthNotice(); });
-  if (footerRegister) footerRegister.addEventListener('click', (e) => { e.preventDefault(); showAuthNotice(); });
-
   // Floating Hero Cards Mouse Parallax
   const heroScene = document.getElementById('hero-3d-scene');
-  if (heroScene && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.innerWidth >= 1024) {
+  if (heroScene && window.innerWidth >= 1024) {
     heroScene.addEventListener('mousemove', (e) => {
       const rect = heroScene.getBoundingClientRect();
-      const x = (e.clientX - rect.left - rect.width / 2) / 25;
-      const y = (e.clientY - rect.top - rect.height / 2) / 25;
+      const x = (e.clientX - rect.left - rect.width / 2) / 20;
+      const y = (e.clientY - rect.top - rect.height / 2) / 20;
 
-      document.querySelectorAll('.floating-card').forEach((card) => {
+      document.querySelectorAll('.vibrant-float-card').forEach((card) => {
         const speed = parseFloat(card.getAttribute('data-speed')) || 1;
         card.style.transform = `translate3d(${x * speed}px, ${y * speed}px, 0)`;
       });
     });
 
     heroScene.addEventListener('mouseleave', () => {
-      document.querySelectorAll('.floating-card').forEach((card) => {
+      document.querySelectorAll('.vibrant-float-card').forEach((card) => {
         card.style.transform = '';
       });
     });
   }
+
+  // Signin & Register informational toasts (Level 2 workspace indicator)
+  const authNotice = () => {
+    showToast('Personal User Workspace arriving in Level 2! Explore all opportunities freely now.', 'info');
+  };
+  const signinBtn = document.getElementById('signin-btn');
+  const ctaReg = document.getElementById('cta-register-btn');
+  const footSign = document.getElementById('footer-signin-link');
+  const footReg = document.getElementById('footer-register-link');
+  if (signinBtn) signinBtn.addEventListener('click', authNotice);
+  if (ctaReg) ctaReg.addEventListener('click', authNotice);
+  if (footSign) footSign.addEventListener('click', (e) => { e.preventDefault(); authNotice(); });
+  if (footReg) footReg.addEventListener('click', (e) => { e.preventDefault(); authNotice(); });
 
   // Navbar shadow on scroll
   window.addEventListener('scroll', () => {
@@ -916,6 +827,7 @@ function setupEventListeners() {
 
 // App Initialization
 document.addEventListener('DOMContentLoaded', async () => {
+  initNightMode();
   setupEventListeners();
   await checkBackendHealth();
   await fetchOpportunities();
