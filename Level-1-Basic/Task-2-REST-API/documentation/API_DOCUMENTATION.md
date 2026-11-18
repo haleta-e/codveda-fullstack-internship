@@ -4,7 +4,8 @@
 **Level:** Codveda Internship Level 1 — Basic  
 **Task:** Task 2 — Build a Simple REST API  
 **Technology Stack:** Node.js, Express.js, PostgreSQL (`pg`), `cors`, `dotenv`  
-**Base URL:** `http://localhost:5000`
+**Base URL:** `http://localhost:5000`  
+**Related Architecture Docs:** [System Architecture](../../../docs/SYSTEM_ARCHITECTURE.md) | [Database Design](../../../docs/DATABASE_DESIGN.md) | [Data Standard](../../../docs/OPPORTUNITY_DATA_STANDARD.md)
 
 ---
 

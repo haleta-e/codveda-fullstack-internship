@@ -2,8 +2,11 @@
 
 > **Codveda Full-Stack Development Internship**  
 > **Level 1 (Basic) — Task 2: Build a Simple REST API**  
-> **Developer:** Haleta  
-> **Project:** Menged (Opportunity Discovery Platform for Ethiopian University Students and Graduates)
+> **Developer:** Etsegenet Amsalu (Haleta)  
+> **Project:** Menged (Opportunity Discovery Platform for Ethiopian University Students and Graduates)  
+> **System Architecture:** [`docs/SYSTEM_ARCHITECTURE.md`](../../docs/SYSTEM_ARCHITECTURE.md)  
+> **Database Design:** [`docs/DATABASE_DESIGN.md`](../../docs/DATABASE_DESIGN.md)  
+> **Data Standard:** [`docs/OPPORTUNITY_DATA_STANDARD.md`](../../docs/OPPORTUNITY_DATA_STANDARD.md)
 
 ---
 

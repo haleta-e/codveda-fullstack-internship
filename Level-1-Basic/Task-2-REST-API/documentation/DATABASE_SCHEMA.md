@@ -1,9 +1,10 @@
 # Menged Database Schema Specification
 
 **Database Name:** `menged_db`  
-**Relational Engine:** PostgreSQL (tested on PostgreSQL 17)  
+**Relational Engine:** PostgreSQL (tested on PostgreSQL 17.11)  
 **Schema File:** [`database/schema.sql`](../database/schema.sql)  
-**Seed File:** [`database/seed.sql`](../database/seed.sql)
+**Seed File:** [`database/seed.sql`](../database/seed.sql)  
+**System Database Specification:** [`docs/DATABASE_DESIGN.md`](../../../docs/DATABASE_DESIGN.md)
 
 ---
 

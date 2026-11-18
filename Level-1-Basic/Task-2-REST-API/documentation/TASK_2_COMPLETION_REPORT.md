@@ -4,7 +4,7 @@
 ---
 
 ### Project Information
-- **Intern Name:** Haleta
+- **Intern Name:** Etsegenet Amsalu (Haleta)
 - **Internship Track:** Full-Stack Development Internship
 - **Level:** Level 1 — Basic
 - **Task:** Task 2 — Build a Simple REST API
@@ -12,6 +12,7 @@
 - **Primary Resource:** `Opportunity`
 - **Location:** `Level-1-Basic/Task-2-REST-API/`
 - **Status:** **Completed & Verified**
+- **System Documentation:** [System Architecture](../../../docs/SYSTEM_ARCHITECTURE.md) | [Database Design](../../../docs/DATABASE_DESIGN.md)
 
 ---
 
